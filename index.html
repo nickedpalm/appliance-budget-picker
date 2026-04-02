@@ -30,40 +30,73 @@
   .budget-chip { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; }
   .budget-chip .chip-price { opacity: 0.7; margin-left: 6px; }
 
-  .category { margin-bottom: 28px; }
-  .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
-  .category-header h2 { font-size: 1.3rem; color: #1a1a2e; }
-  .cat-actions { display: flex; gap: 8px; }
-  .add-btn, .import-btn, .search-btn { border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: all 0.15s; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
-  .add-btn { background: #10b981; }
-  .add-btn:hover { background: #059669; transform: translateY(-1px); }
-  .import-btn { background: #3b82f6; }
-  .import-btn:hover { background: #2563eb; transform: translateY(-1px); }
-  .search-btn { background: #8b5cf6; }
-  .search-btn:hover { background: #7c3aed; transform: translateY(-1px); }
+  /* Room styles */
+  .room { margin-bottom: 40px; background: white; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+  .room-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #e5e7eb; }
+  .room-header-left { display: flex; align-items: center; gap: 12px; }
+  .room-name { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; background: none; border: none; border-bottom: 2px solid transparent; padding: 2px 4px; cursor: text; transition: border-color 0.15s; outline: none; font-family: inherit; }
+  .room-name:hover { border-bottom-color: #d1d5db; }
+  .room-name:focus { border-bottom-color: #3b82f6; }
+  .room-actions { display: flex; gap: 8px; align-items: center; }
+  .room-delete-btn { background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #9ca3af; cursor: pointer; transition: all 0.15s; }
+  .room-delete-btn:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
 
-  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
-  .card { background: white; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; transition: all 0.2s; cursor: pointer; position: relative; }
+  /* Category styles */
+  .category { margin-bottom: 24px; }
+  .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
+  .category-header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .cat-name-input { font-size: 1.15rem; font-weight: 600; color: #1a1a2e; background: none; border: none; border-bottom: 1px solid transparent; padding: 2px 4px; cursor: text; transition: border-color 0.15s; outline: none; font-family: inherit; min-width: 80px; max-width: 200px; }
+  .cat-name-input:hover { border-bottom-color: #d1d5db; }
+  .cat-name-input:focus { border-bottom-color: #3b82f6; }
+  .cat-search-input { font-size: 0.8rem; color: #6b7280; background: none; border: 1px solid transparent; border-radius: 6px; padding: 3px 8px; cursor: text; transition: all 0.15s; outline: none; font-family: inherit; flex: 1; min-width: 100px; }
+  .cat-search-input:hover { border-color: #e5e7eb; }
+  .cat-search-input:focus { border-color: #8b5cf6; background: #faf5ff; }
+  .cat-search-input::placeholder { color: #d1d5db; }
+  .cat-delete-btn { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 1.1rem; padding: 4px; transition: color 0.15s; line-height: 1; }
+  .cat-delete-btn:hover { color: #ef4444; }
+  .cat-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .action-btn { border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: all 0.15s; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .action-btn.green { background: #10b981; }
+  .action-btn.green:hover { background: #059669; }
+  .action-btn.blue { background: #3b82f6; }
+  .action-btn.blue:hover { background: #2563eb; }
+  .action-btn.purple { background: #8b5cf6; }
+  .action-btn.purple:hover { background: #7c3aed; }
+
+  .add-cat-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; }
+  .add-cat-row input { padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; outline: none; font-family: inherit; }
+  .add-cat-row input:focus { border-color: #3b82f6; }
+  .add-cat-row .cat-name-field { width: 160px; }
+  .add-cat-row .cat-search-field { flex: 1; }
+  .add-cat-inline-btn { border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: all 0.15s; }
+  .add-cat-trigger { background: none; border: 1px dashed #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; color: #9ca3af; cursor: pointer; transition: all 0.15s; width: 100%; margin-top: 12px; }
+  .add-cat-trigger:hover { border-color: #8b5cf6; color: #8b5cf6; }
+
+  /* Add room */
+  .add-room-section { text-align: center; margin: 24px 0; }
+  .add-room-btn { background: none; border: 2px dashed #d1d5db; border-radius: 16px; padding: 20px 32px; font-size: 1rem; color: #6b7280; cursor: pointer; transition: all 0.15s; font-weight: 600; width: 100%; }
+  .add-room-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+  .add-room-form { background: white; border: 2px dashed #3b82f6; border-radius: 16px; padding: 20px; display: flex; gap: 12px; align-items: flex-end; }
+  .add-room-form .form-group { flex: 1; }
+
+  /* Cards */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .card { background: #f9fafb; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; transition: all 0.2s; cursor: pointer; position: relative; }
   .card:hover { border-color: #93c5fd; box-shadow: 0 4px 20px rgba(59,130,246,0.1); }
   .card.selected { border-color: #3b82f6; background: #eff6ff; box-shadow: 0 4px 20px rgba(59,130,246,0.15); }
-
-  .card-img { width: 100%; height: 180px; object-fit: contain; background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+  .card-img { width: 100%; height: 180px; object-fit: contain; background: white; border-bottom: 1px solid #e5e7eb; }
   .card-img-placeholder { width: 100%; height: 100px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #d1d5db; font-size: 2rem; border-bottom: 1px solid #e5e7eb; }
-
-  .card-body { padding: 16px 20px 20px; }
+  .card-body { padding: 14px 18px 18px; }
   .card-check { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: rgba(255,255,255,0.9); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
   .card.selected .card-check { background: #3b82f6; border-color: #3b82f6; }
   .card-check svg { width: 14px; height: 14px; color: white; opacity: 0; transition: opacity 0.15s; }
   .card.selected .card-check svg { opacity: 1; }
-
   .card-actions-bar { position: absolute; top: 12px; right: 48px; display: flex; gap: 4px; }
   .delete-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); color: #9ca3af; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
   .delete-btn:hover { background: #fee2e2; color: #ef4444; }
-
   .card-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 8px; padding-right: 20px; color: #1a1a2e; }
   .card-dim { font-size: 0.85rem; color: #6b7280; margin-bottom: 6px; }
   .card-notes { font-size: 0.85rem; color: #9ca3af; margin-bottom: 8px; font-style: italic; min-height: 20px; }
-
   .card-review { font-size: 0.84rem; color: #4b5563; margin-bottom: 12px; line-height: 1.5; background: #f0f7ff; padding: 12px 14px; border-radius: 8px; border-left: 3px solid #3b82f6; }
   .card-review.loading { color: #9ca3af; font-style: italic; background: #f9fafb; border-left-color: #d1d5db; }
   .review-blurb { margin-bottom: 10px; }
@@ -85,15 +118,14 @@
   .feature-tag { background: #dbeafe; color: #1e40af; font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
   .blurb-btn { background: none; border: 1px solid #d1d5db; border-radius: 6px; padding: 4px 10px; font-size: 0.8rem; color: #6b7280; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
   .blurb-btn:hover { border-color: #3b82f6; color: #3b82f6; }
-
   .card-footer { display: flex; justify-content: space-between; align-items: center; }
   .card-price { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
   .card-price.zero { color: #9ca3af; font-size: 1rem; }
   .card-link { color: #3b82f6; font-size: 0.85rem; text-decoration: none; font-weight: 500; padding: 4px 10px; border-radius: 6px; transition: background 0.15s; }
   .card-link:hover { background: #dbeafe; }
 
-  .import-form { background: white; border-radius: 12px; padding: 24px; border: 2px dashed #3b82f6; margin-bottom: 16px; }
-  .import-form h3 { margin-bottom: 12px; color: #3b82f6; }
+  .import-form { background: #f9fafb; border-radius: 12px; padding: 20px; border: 2px dashed #3b82f6; margin-bottom: 14px; }
+  .import-form h3 { margin-bottom: 12px; color: #3b82f6; font-size: 1rem; }
   .import-row { display: flex; gap: 12px; align-items: flex-end; }
   .import-row .form-group { flex: 1; }
   .import-status { margin-top: 12px; font-size: 0.9rem; }
@@ -103,8 +135,8 @@
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #3b82f6; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .add-form { background: white; border-radius: 12px; padding: 24px; border: 2px dashed #10b981; margin-bottom: 16px; }
-  .add-form h3 { margin-bottom: 16px; color: #10b981; }
+  .add-form { background: #f9fafb; border-radius: 12px; padding: 20px; border: 2px dashed #10b981; margin-bottom: 14px; }
+  .add-form h3 { margin-bottom: 16px; color: #10b981; font-size: 1rem; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-group { display: flex; flex-direction: column; }
   .form-group.full { grid-column: 1 / -1; }
@@ -118,14 +150,7 @@
   .btn-cancel { background: #f3f4f6; color: #6b7280; }
   .btn-cancel:hover { background: #e5e7eb; }
 
-  .empty { text-align: center; padding: 40px; color: #9ca3af; border: 2px dashed #e5e7eb; border-radius: 12px; }
-
-  .add-category-section { text-align: center; margin: 32px 0; }
-  .add-category-btn { background: none; border: 2px dashed #d1d5db; border-radius: 12px; padding: 16px 32px; font-size: 1rem; color: #6b7280; cursor: pointer; transition: all 0.15s; font-weight: 600; width: 100%; }
-  .add-category-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
-  .add-category-form { background: white; border: 2px dashed #8b5cf6; border-radius: 12px; padding: 20px; display: flex; gap: 12px; align-items: flex-end; }
-  .add-category-form .form-group { flex: 1; }
-  .add-category-form .form-group.search { flex: 2; }
+  .empty { text-align: center; padding: 30px; color: #d1d5db; font-size: 0.9rem; }
 
   .summary-section { margin-top: 40px; }
   .summary-section h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
@@ -136,6 +161,7 @@
   .summary-table .total-row { background: #10b981; color: white; font-weight: 700; font-size: 1.1rem; }
   .summary-table .total-row td { border-bottom: none; }
   .summary-table .empty-row td { color: #d1d5db; font-style: italic; }
+  .summary-table .room-label td { background: #f3f4f6; font-weight: 700; font-size: 0.9rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
   .summary-thumb { width: 48px; height: 48px; object-fit: contain; border-radius: 6px; background: #f9fafb; }
 
   @media (max-width: 768px) {
@@ -144,49 +170,35 @@
     .card-grid { grid-template-columns: 1fr; }
     .form-grid { grid-template-columns: 1fr; }
     .import-row { flex-direction: column; }
+    .category-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .category-header-left { flex-wrap: wrap; }
+    .add-cat-row { flex-wrap: wrap; }
+    .add-room-form { flex-direction: column; }
   }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useMemo, useCallback } = React;
+const { useState, useMemo, useCallback, useEffect, useRef } = React;
 
 const WORKER_URL = 'https://appliance-parser.nick-ed-palm.workers.dev';
 const API_BASE = window.location.origin;
-
-const FALLBACK_DATA = {};
-
-const CATEGORY_SEARCH = {
-  'Refrigerator': '29-30" counter depth french door OR bottom freezer refrigerator stainless steel OR panel ready',
-  'Dishwasher': '24" panel ready dishwasher',
-  'Stove': '30" slide-in double oven gas range electric oven',
-  'Microwave': 'built-in microwave trim kit 24"',
-  'Sink': 'kitchen undermount sink stainless steel',
-  'Faucet': 'kitchen faucet pull-down sprayer',
-  'Range Hood': '30" range hood stainless steel OR panel ready',
-'Bathroom Vanity': 'bathroom vanity with sink',
-  'Toilet': 'toilet elongated bowl',
-  'Bathroom Faucet': 'bathroom faucet single hole',
-  'Shower/Tub': 'bathtub shower combo',
-  'Bathroom Tile': 'bathroom floor tile',
-  'Lighting': 'ceiling light fixture modern',
-  'Flooring': 'hardwood OR engineered wood flooring',
-  'Countertops': 'quartz countertop kitchen',
-  'Cabinets': 'kitchen cabinets shaker style',
-  'Backsplash': 'kitchen backsplash tile subway',
-  'Cabinet Hardware': 'cabinet pulls handles modern',
-  'Paint': 'interior wall paint',
-  'Interior Doors': 'interior door pre-hung',
-  'Window Treatments': 'window blinds OR shades',
-  'Closet System': 'closet organizer system',
-};
 
 const CheckIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
+
+// Debounce helper for saving editable fields
+function useDebounce(fn, delay) {
+  const timer = useRef(null);
+  return useCallback((...args) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(...args), delay);
+  }, [fn, delay]);
+}
 
 function ImportForm({ category, onImport, onCancel }) {
   const [url, setUrl] = useState('');
@@ -209,7 +221,7 @@ function ImportForm({ category, onImport, onCancel }) {
       <div className="import-row">
         <div className="form-group" style={{flex:1}}>
           <label>Product URL</label>
-          <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://www.geappliances.com/appliance/..." onKeyDown={e => e.key === 'Enter' && doImport()} />
+          <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." onKeyDown={e => e.key === 'Enter' && doImport()} />
         </div>
         <div style={{display:'flex', gap:8, paddingBottom:1}}>
           <button className="btn-save" onClick={doImport} disabled={!url}>Import</button>
@@ -246,21 +258,14 @@ function AddForm({ category, onSave, onCancel }) {
 function parseBlurb(text, citations) {
   if (!text) return '';
   let html = text;
-  // Escape HTML entities
   html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  // Bold: **text**
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  // Italic: *text*
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // Inline links: [text](url)
   html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" onclick="event.stopPropagation()">$1</a>');
-  // Citation refs: [1], [2][3], etc → linked superscripts if citations available
   const cites = citations || [];
   html = html.replace(/\[(\d+)\]/g, (match, num) => {
     const idx = parseInt(num) - 1;
-    if (cites[idx]) {
-      return '<sup><a href="' + cites[idx] + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">[' + num + ']</a></sup>';
-    }
+    if (cites[idx]) return '<sup><a href="' + cites[idx] + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">[' + num + ']</a></sup>';
     return '<sup>[' + num + ']</sup>';
   });
   return html;
@@ -268,7 +273,6 @@ function parseBlurb(text, citations) {
 
 function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
   const [blurbLoading, setBlurbLoading] = useState(false);
-
   const fetchBlurb = async (e) => {
     e.stopPropagation();
     setBlurbLoading(true);
@@ -282,9 +286,7 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
     } catch {}
     setBlurbLoading(false);
   };
-
   const blurbHtml = useMemo(() => item.blurb ? parseBlurb(item.blurb, item.citations) : '', [item.blurb, item.citations]);
-
   return (
     <div className={`card${selected ? ' selected' : ''}`} onClick={onToggle}>
       <div className="card-actions-bar">
@@ -296,7 +298,6 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
         <div className="card-name">{item.name}</div>
         <div className="card-dim">{item.dim}</div>
         <div className="card-notes">{item.notes || '\u00A0'}</div>
-
         {item.blurb ? (
           <div className="card-review" onClick={e => e.stopPropagation()}>
             <div className="review-blurb" dangerouslySetInnerHTML={{ __html: blurbHtml }} />
@@ -319,14 +320,13 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
         ) : blurbLoading ? (
           <div className="card-review loading"><span className="spinner" /> Getting the scoop from Perplexity...</div>
         ) : (
-          <button className="blurb-btn" onClick={fetchBlurb}>Get AI review for Clinton Hill reno</button>
+          <button className="blurb-btn" onClick={fetchBlurb}>Get AI review</button>
         )}
-
         <div className="card-footer">
           <div className={`card-price${item.price === 0 ? ' zero' : ''}`}>
             {item.price > 0 ? `$${item.price.toLocaleString()}` : 'Call for price'}
           </div>
-          {item.url && <a className="card-link" href={item.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>View Product &rarr;</a>}
+          {item.url && <a className="card-link" href={item.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>View &rarr;</a>}
         </div>
       </div>
     </div>
@@ -334,97 +334,179 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
 }
 
 function App() {
-  const [data, setData] = useState(FALLBACK_DATA);
+  const [rooms, setRooms] = useState([]);
   const [selected, setSelected] = useState({});
-  const [addingTo, setAddingTo] = useState(null);
-  const [importingTo, setImportingTo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [addingCategory, setAddingCategory] = useState(false);
+  const [addingTo, setAddingTo] = useState(null);     // "roomId:catName"
+  const [importingTo, setImportingTo] = useState(null);
+  const [addingCatTo, setAddingCatTo] = useState(null); // roomId
   const [newCatName, setNewCatName] = useState('');
   const [newCatSearch, setNewCatSearch] = useState('');
-  const [catSearchOverrides, setCatSearchOverrides] = useState({});
+  const [addingRoom, setAddingRoom] = useState(false);
+  const [newRoomName, setNewRoomName] = useState('');
 
-  // Load data from API on mount
-  React.useEffect(() => {
+  // Load data
+  useEffect(() => {
     fetch(API_BASE + '/api/data')
       .then(r => r.json())
       .then(resp => {
-        if (resp.data && Object.keys(resp.data).length > 0) {
-          setData(resp.data);
-        }
+        if (resp.rooms) setRooms(resp.rooms);
         if (resp.selected) setSelected(resp.selected);
       })
-      .catch(err => console.error('Failed to load data:', err))
+      .catch(err => console.error('Failed to load:', err))
       .finally(() => setLoading(false));
   }, []);
 
-  const toggle = (cat, id) => {
+  // -- Selections --
+  const toggle = (catName, productId) => {
     setSelected(prev => {
-      const next = prev[cat] === id ? { ...prev, [cat]: undefined } : { ...prev, [cat]: id };
+      const next = prev[catName] === productId ? { ...prev, [catName]: undefined } : { ...prev, [catName]: productId };
       fetch(API_BASE + '/api/selections', {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [cat]: next[cat] || null }),
+        body: JSON.stringify({ [catName]: next[catName] || null }),
       }).catch(() => {});
       return next;
     });
   };
 
-  const addProduct = (cat, p) => {
-    setData(prev => ({ ...prev, [cat]: [...prev[cat], p] }));
+  // -- Products --
+  const addProduct = (catName, product) => {
+    setRooms(prev => prev.map(r => ({
+      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c)
+    })));
     setAddingTo(null);
     fetch(API_BASE + '/api/products', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...p, category: cat }),
+      body: JSON.stringify({ ...product, category: catName }),
     }).catch(() => {});
   };
 
-  const importProduct = (cat, p) => {
-    setData(prev => ({ ...prev, [cat]: [...prev[cat], p] }));
+  const importProduct = (catName, product) => {
+    setRooms(prev => prev.map(r => ({
+      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c)
+    })));
     setImportingTo(null);
     fetch(API_BASE + '/api/products', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...p, category: cat }),
+      body: JSON.stringify({ ...product, category: catName }),
     }).catch(() => {});
   };
 
-  const deleteProduct = (cat, id) => {
-    setData(prev => ({ ...prev, [cat]: prev[cat].filter(i => i.id !== id) }));
-    if (selected[cat] === id) setSelected(prev => ({ ...prev, [cat]: undefined }));
-    fetch(API_BASE + '/api/products/' + id, { method: 'DELETE' }).catch(() => {});
+  const deleteProduct = (catName, productId) => {
+    setRooms(prev => prev.map(r => ({
+      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.filter(p => p.id !== productId) } : c)
+    })));
+    if (selected[catName] === productId) setSelected(prev => ({ ...prev, [catName]: undefined }));
+    fetch(API_BASE + '/api/products/' + productId, { method: 'DELETE' }).catch(() => {});
   };
 
-  const addCategory = (name, searchQuery) => {
-    if (!name || data[name]) return;
-    setData(prev => ({ ...prev, [name]: [] }));
-    if (searchQuery) setCatSearchOverrides(prev => ({ ...prev, [name]: searchQuery }));
-    setAddingCategory(false);
-    setNewCatName('');
-    setNewCatSearch('');
-    fetch(API_BASE + '/api/categories', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    }).catch(() => {});
-  };
-
-  const getSearchQuery = (category) => catSearchOverrides[category] || CATEGORY_SEARCH[category] || null;
-
-  const updateBlurb = useCallback((cat, id, reviewData) => {
-    setData(prev => ({
-      ...prev,
-      [cat]: prev[cat].map(item => item.id === id ? { ...item, ...reviewData } : item)
-    }));
-    fetch(API_BASE + '/api/products/' + id, {
+  const updateBlurb = useCallback((catName, productId, reviewData) => {
+    setRooms(prev => prev.map(r => ({
+      ...r, categories: r.categories.map(c => c.name === catName ? {
+        ...c, products: c.products.map(p => p.id === productId ? { ...p, ...reviewData } : p)
+      } : c)
+    })));
+    fetch(API_BASE + '/api/products/' + productId, {
       method: 'PUT', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reviewData),
     }).catch(() => {});
   }, []);
 
-  const selectedItems = useMemo(() => {
-    const items = [];
-    Object.keys(data).forEach(cat => { const id = selected[cat]; if (id) { const item = data[cat].find(i => i.id === id); if (item) items.push({ ...item, category: cat }); } });
-    return items;
-  }, [data, selected]);
+  // -- Rooms --
+  const addRoom = (name) => {
+    if (!name) return;
+    const tempId = 'room-' + Date.now();
+    setRooms(prev => [...prev, { id: tempId, name, categories: [] }]);
+    setAddingRoom(false);
+    setNewRoomName('');
+    fetch(API_BASE + '/api/rooms', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }).then(r => r.json()).then(resp => {
+      if (resp.id) setRooms(prev => prev.map(r => r.id === tempId ? { ...r, id: resp.id } : r));
+    }).catch(() => {});
+  };
 
+  const saveRoomName = useDebounce((roomId, name) => {
+    fetch(API_BASE + '/api/rooms/' + roomId, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }).catch(() => {});
+  }, 800);
+
+  const updateRoomName = (roomId, name) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, name } : r));
+    saveRoomName(roomId, name);
+  };
+
+  const deleteRoom = (roomId) => {
+    setRooms(prev => prev.filter(r => r.id !== roomId));
+    fetch(API_BASE + '/api/rooms/' + roomId, { method: 'DELETE' }).catch(() => {});
+  };
+
+  // -- Categories --
+  const addCategory = (roomId, name, searchQuery) => {
+    if (!name) return;
+    setRooms(prev => prev.map(r => r.id === roomId ? {
+      ...r, categories: [...r.categories, { name, search_query: searchQuery || '', products: [] }]
+    } : r));
+    setAddingCatTo(null);
+    setNewCatName('');
+    setNewCatSearch('');
+    fetch(API_BASE + '/api/categories', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, room_id: roomId, search_query: searchQuery || '' }),
+    }).catch(() => {});
+  };
+
+  const saveCatName = useDebounce((oldName, newName) => {
+    if (oldName === newName) return;
+    fetch(API_BASE + '/api/categories/' + encodeURIComponent(oldName), {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ new_name: newName }),
+    }).catch(() => {});
+  }, 800);
+
+  const saveCatSearch = useDebounce((catName, searchQuery) => {
+    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ search_query: searchQuery }),
+    }).catch(() => {});
+  }, 800);
+
+  const updateCatName = (roomId, oldName, newName) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? {
+      ...r, categories: r.categories.map(c => c.name === oldName ? { ...c, name: newName } : c)
+    } : r));
+    saveCatName(oldName, newName);
+  };
+
+  const updateCatSearch = (roomId, catName, searchQuery) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? {
+      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, search_query: searchQuery } : c)
+    } : r));
+    saveCatSearch(catName, searchQuery);
+  };
+
+  const deleteCategory = (roomId, catName) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? {
+      ...r, categories: r.categories.filter(c => c.name !== catName)
+    } : r));
+    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), { method: 'DELETE' }).catch(() => {});
+  };
+
+  // -- Computed --
+  const allCategories = useMemo(() => {
+    const cats = [];
+    rooms.forEach(room => room.categories.forEach(cat => {
+      const selId = selected[cat.name];
+      const selProduct = selId ? cat.products.find(p => p.id === selId) : null;
+      cats.push({ room: room.name, catName: cat.name, selected: selProduct });
+    }));
+    return cats;
+  }, [rooms, selected]);
+
+  const selectedItems = useMemo(() => allCategories.filter(c => c.selected).map(c => ({ ...c.selected, category: c.catName, room: c.room })), [allCategories]);
   const total = selectedItems.reduce((s, i) => s + i.price, 0);
   const count = selectedItems.length;
 
@@ -432,7 +514,7 @@ function App() {
     return (
       <div className="app" style={{textAlign: 'center', paddingTop: '100px'}}>
         <span className="spinner" style={{width: 32, height: 32, borderWidth: 3}} />
-        <p style={{marginTop: 16, color: '#6b7280'}}>Loading appliances...</p>
+        <p style={{marginTop: 16, color: '#6b7280'}}>Loading...</p>
       </div>
     );
   }
@@ -441,7 +523,7 @@ function App() {
     <div className="app">
       <div className="header">
         <h1>Appliance Budget Picker</h1>
-        <p>Click to select. Import from URL or add manually. Budget updates instantly.</p>
+        <p>Click to select one per category. Budget updates instantly.</p>
         <div className="context">Clinton Hill Coops Renovation - Brooklyn, NY</div>
       </div>
 
@@ -457,80 +539,105 @@ function App() {
         </div>
       </div>
 
-      {Object.keys(data).map(category => (
-        <div className="category" key={category}>
-          <div className="category-header">
-            <h2>{category}</h2>
-            <div className="cat-actions">
-              {getSearchQuery(category) && (
-                <a className="search-btn" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(getSearchQuery(category))} target="_blank" rel="noopener">
-                  &#128269; Search
-                </a>
-              )}
-              <button className="import-btn" onClick={() => { setImportingTo(importingTo === category ? null : category); setAddingTo(null); }}>
-                {importingTo === category ? '- Cancel' : 'Import from URL'}
-              </button>
-              <button className="add-btn" onClick={() => { setAddingTo(addingTo === category ? null : category); setImportingTo(null); }}>
-                {addingTo === category ? '- Cancel' : '+ Add Manually'}
-              </button>
+      {rooms.map(room => (
+        <div className="room" key={room.id}>
+          <div className="room-header">
+            <div className="room-header-left">
+              <input className="room-name" value={room.name} onChange={e => updateRoomName(room.id, e.target.value)} />
+            </div>
+            <div className="room-actions">
+              <button className="room-delete-btn" onClick={() => deleteRoom(room.id)}>Remove Room</button>
             </div>
           </div>
-          {importingTo === category && <ImportForm category={category} onImport={p => importProduct(category, p)} onCancel={() => setImportingTo(null)} />}
-          {addingTo === category && <AddForm category={category} onSave={p => addProduct(category, p)} onCancel={() => setAddingTo(null)} />}
-          {data[category].length > 0 ? (
-            <div className="card-grid">
-              {data[category].map(item => (
-                <Card key={item.id} item={item} selected={selected[category] === item.id}
-                  onToggle={() => toggle(category, item.id)}
-                  onDelete={() => deleteProduct(category, item.id)}
-                  onBlurbLoaded={(id, reviewData) => updateBlurb(category, id, reviewData)} />
-              ))}
+
+          {room.categories.map(cat => {
+            const catKey = room.id + ':' + cat.name;
+            return (
+              <div className="category" key={cat.name}>
+                <div className="category-header">
+                  <div className="category-header-left">
+                    <input className="cat-name-input" value={cat.name} onChange={e => updateCatName(room.id, cat.name, e.target.value)} />
+                    <input className="cat-search-input" value={cat.search_query} onChange={e => updateCatSearch(room.id, cat.name, e.target.value)} placeholder="search query..." title="Google Shopping search query" />
+                    <button className="cat-delete-btn" title="Remove category" onClick={() => deleteCategory(room.id, cat.name)}>&times;</button>
+                  </div>
+                  <div className="cat-actions">
+                    {cat.search_query && (
+                      <a className="action-btn purple" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(cat.search_query)} target="_blank" rel="noopener">&#128269; Search</a>
+                    )}
+                    <button className="action-btn blue" onClick={() => { setImportingTo(importingTo === catKey ? null : catKey); setAddingTo(null); }}>
+                      {importingTo === catKey ? 'Cancel' : 'Import URL'}
+                    </button>
+                    <button className="action-btn green" onClick={() => { setAddingTo(addingTo === catKey ? null : catKey); setImportingTo(null); }}>
+                      {addingTo === catKey ? 'Cancel' : '+ Add'}
+                    </button>
+                  </div>
+                </div>
+                {importingTo === catKey && <ImportForm category={cat.name} onImport={p => importProduct(cat.name, p)} onCancel={() => setImportingTo(null)} />}
+                {addingTo === catKey && <AddForm category={cat.name} onSave={p => addProduct(cat.name, p)} onCancel={() => setAddingTo(null)} />}
+                {cat.products.length > 0 ? (
+                  <div className="card-grid">
+                    {cat.products.map(item => (
+                      <Card key={item.id} item={item} selected={selected[cat.name] === item.id}
+                        onToggle={() => toggle(cat.name, item.id)}
+                        onDelete={() => deleteProduct(cat.name, item.id)}
+                        onBlurbLoaded={(id, reviewData) => updateBlurb(cat.name, id, reviewData)} />
+                    ))}
+                  </div>
+                ) : <div className="empty">No products yet</div>}
+              </div>
+            );
+          })}
+
+          {addingCatTo === room.id ? (
+            <div className="add-cat-row">
+              <input className="cat-name-field" value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="Category name" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
+              <input className="cat-search-field" value={newCatSearch} onChange={e => setNewCatSearch(e.target.value)} placeholder="Search query (optional)" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
+              <button className="add-cat-inline-btn btn-save" onClick={() => addCategory(room.id, newCatName, newCatSearch)} disabled={!newCatName}>Add</button>
+              <button className="add-cat-inline-btn btn-cancel" onClick={() => { setAddingCatTo(null); setNewCatName(''); setNewCatSearch(''); }}>Cancel</button>
             </div>
-          ) : <div className="empty">No options yet. Import from a URL or add manually.</div>}
+          ) : (
+            <button className="add-cat-trigger" onClick={() => { setAddingCatTo(room.id); setNewCatName(''); setNewCatSearch(''); }}>+ Add Category to {room.name}</button>
+          )}
         </div>
       ))}
 
-      <div className="add-category-section">
-        {addingCategory ? (
-          <div className="add-category-form">
+      <div className="add-room-section">
+        {addingRoom ? (
+          <div className="add-room-form">
             <div className="form-group">
-              <label>Category Name</label>
-              <input value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="e.g. Bathroom Mirror" onKeyDown={e => e.key === 'Enter' && addCategory(newCatName, newCatSearch)} />
-            </div>
-            <div className="form-group search">
-              <label>Search Query (optional)</label>
-              <input value={newCatSearch} onChange={e => setNewCatSearch(e.target.value)} placeholder='e.g. bathroom mirror LED 36 inch' onKeyDown={e => e.key === 'Enter' && addCategory(newCatName, newCatSearch)} />
+              <label>Room Name</label>
+              <input value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="e.g. Bedroom, Entryway..." onKeyDown={e => e.key === 'Enter' && addRoom(newRoomName)} autoFocus />
             </div>
             <div style={{display:'flex', gap:8, paddingBottom:1}}>
-              <button className="btn-save" onClick={() => addCategory(newCatName, newCatSearch)} disabled={!newCatName}>Add</button>
-              <button className="btn-cancel" onClick={() => { setAddingCategory(false); setNewCatName(''); setNewCatSearch(''); }}>Cancel</button>
+              <button className="btn-save" onClick={() => addRoom(newRoomName)} disabled={!newRoomName}>Add Room</button>
+              <button className="btn-cancel" onClick={() => { setAddingRoom(false); setNewRoomName(''); }}>Cancel</button>
             </div>
           </div>
         ) : (
-          <button className="add-category-btn" onClick={() => setAddingCategory(true)}>+ Add Category</button>
+          <button className="add-room-btn" onClick={() => setAddingRoom(true)}>+ Add Room</button>
         )}
       </div>
 
       <div className="summary-section">
         <h2>Budget Summary</h2>
         <table className="summary-table">
-          <thead><tr><th></th><th>Category</th><th>Selected</th><th>Dimensions</th><th style={{textAlign:'right'}}>Price</th></tr></thead>
+          <thead><tr><th></th><th>Room</th><th>Category</th><th>Selected</th><th style={{textAlign:'right'}}>Price</th></tr></thead>
           <tbody>
-            {Object.keys(data).map(cat => {
-              const item = selectedItems.find(i => i.category === cat);
-              return item ? (
-                <tr key={cat}>
-                  <td>{item.image ? <img className="summary-thumb" src={item.image} alt="" /> : null}</td>
-                  <td><strong>{cat}</strong></td>
-                  <td>{item.name}</td>
-                  <td>{item.dim}</td>
-                  <td style={{textAlign:'right', fontWeight:600}}>{item.price > 0 ? `$${item.price.toLocaleString()}` : 'TBD'}</td>
-                </tr>
-              ) : (
-                <tr key={cat} className="empty-row">
-                  <td></td><td><strong>{cat}</strong></td><td>No selection</td><td>-</td><td style={{textAlign:'right'}}>$0</td>
-                </tr>
-              );
+            {rooms.map(room => {
+              const roomCats = room.categories;
+              if (roomCats.length === 0) return null;
+              return roomCats.map((cat, ci) => {
+                const item = selectedItems.find(i => i.category === cat.name);
+                return (
+                  <tr key={cat.name} className={!item ? 'empty-row' : ''}>
+                    <td>{item?.image ? <img className="summary-thumb" src={item.image} alt="" /> : null}</td>
+                    <td>{ci === 0 ? <strong>{room.name}</strong> : ''}</td>
+                    <td>{cat.name}</td>
+                    <td>{item ? item.name : 'No selection'}</td>
+                    <td style={{textAlign:'right', fontWeight: item ? 600 : 400}}>{item ? (item.price > 0 ? `$${item.price.toLocaleString()}` : 'TBD') : '$0'}</td>
+                  </tr>
+                );
+              });
             })}
             <tr className="total-row"><td colSpan="4" style={{textAlign:'right'}}>TOTAL</td><td style={{textAlign:'right', fontSize:'1.2rem'}}>${total.toLocaleString()}</td></tr>
           </tbody>
