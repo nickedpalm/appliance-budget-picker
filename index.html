@@ -117,6 +117,13 @@
   .card-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 8px; padding-right: 20px; color: #1a1a2e; }
   .card-dim { font-size: 0.85rem; color: #6b7280; margin-bottom: 6px; }
   .card-notes { font-size: 0.85rem; color: #9ca3af; margin-bottom: 8px; font-style: italic; min-height: 20px; }
+  .card-edit-input { background: none; border: none; border-bottom: 1px solid transparent; padding: 1px 2px; outline: none; font-family: inherit; width: 100%; transition: border-color 0.15s; }
+  .card-edit-input:hover { border-bottom-color: #d1d5db; }
+  .card-edit-input:focus { border-bottom-color: #3b82f6; background: #f0f7ff; }
+  .card-edit-input.name { font-weight: 600; font-size: 1.05rem; color: #1a1a2e; padding-right: 20px; }
+  .card-edit-input.dim { font-size: 0.85rem; color: #6b7280; }
+  .card-edit-input.notes { font-size: 0.85rem; color: #9ca3af; font-style: italic; }
+  .card-edit-input.price { font-size: 1.1rem; font-weight: 700; color: #1a1a2e; width: 90px; text-align: left; }
   .card-review { font-size: 0.84rem; color: #4b5563; margin-bottom: 12px; line-height: 1.5; background: #f0f7ff; padding: 12px 14px; border-radius: 8px; border-left: 3px solid #3b82f6; }
   .card-review.loading { color: #9ca3af; font-style: italic; background: #f9fafb; border-left-color: #d1d5db; }
   .review-blurb { margin-bottom: 10px; }
@@ -331,7 +338,7 @@ function parseBlurb(text, citations) {
   return html;
 }
 
-function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onMoveUp, onMoveDown, isFirst, isLast }) {
+function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [blurbLoading, setBlurbLoading] = useState(false);
   const fetchBlurb = async (e) => {
     e.stopPropagation();
@@ -359,9 +366,9 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, 
       <div className="card-check"><CheckIcon /></div>
       {item.image ? <img className="card-img" src={item.image} alt={item.name} onError={e => { e.target.style.display='none'; }} /> : <div className="card-img-placeholder">&#128444;</div>}
       <div className="card-body">
-        <div className="card-name">{item.name}</div>
-        <div className="card-dim">{item.dim}</div>
-        <div className="card-notes">{item.notes || '\u00A0'}</div>
+        <input className="card-edit-input name" value={item.name} onClick={e => e.stopPropagation()} onChange={e => onEdit({ name: e.target.value })} placeholder="Product name" />
+        <input className="card-edit-input dim" value={item.dim || ''} onClick={e => e.stopPropagation()} onChange={e => onEdit({ dim: e.target.value })} placeholder="Dimensions" />
+        <input className="card-edit-input notes" value={item.notes || ''} onClick={e => e.stopPropagation()} onChange={e => onEdit({ notes: e.target.value })} placeholder="Notes" />
 
         <div className="card-qty-row" onClick={e => e.stopPropagation()}>
           <input className="qty-input" type="number" min="0" step="any" value={item.qty ?? 1} onChange={e => onUpdateQty(item.id, { qty: Number(e.target.value) || 0 })} />
@@ -396,8 +403,9 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, 
           <button className="blurb-btn" onClick={fetchBlurb}>Get AI review</button>
         )}
         <div className="card-footer">
-          <div className={`card-price${total === 0 ? ' zero' : ''}`}>
-            {total > 0 ? (<>{`$${total.toLocaleString()}`}{(item.qty || 1) !== 1 && <span className="price-detail">{item.qty} {item.unit} x ${item.price.toLocaleString()}</span>}</>) : 'Call for price'}
+          <div className={`card-price${total === 0 ? ' zero' : ''}`} onClick={e => e.stopPropagation()}>
+            $<input className="card-edit-input price" type="number" value={item.price || ''} onChange={e => onEdit({ price: Number(e.target.value) || 0 })} placeholder="0" />
+            {(item.qty || 1) !== 1 && <span className="price-detail">{item.qty} {item.unit} = ${total.toLocaleString()}</span>}
           </div>
           {item.url && <a className="card-link" href={item.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>View &rarr;</a>}
         </div>
@@ -508,6 +516,17 @@ function App() {
     setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c) })));
     saveProductQty(productId, data);
   }, [saveProductQty]);
+
+  const saveProductEdit = useDebounce((productId, data) => {
+    fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
+  }, 600);
+
+  const editProduct = useCallback((catName, productId, data) => {
+    setRooms(prev => prev.map(r => ({
+      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c)
+    })));
+    saveProductEdit(productId, data);
+  }, [saveProductEdit]);
 
   const moveProduct = (catName, productId, dir) => {
     setRooms(prev => prev.map(r => ({
@@ -688,6 +707,7 @@ function App() {
                               onDelete={() => deleteProduct(cat.name, item.id)}
                               onBlurbLoaded={(id, reviewData) => updateBlurb(cat.name, id, reviewData)}
                               onUpdateQty={(id, data) => updateProductQty(cat.name, id, data)}
+                              onEdit={(data) => editProduct(cat.name, item.id, data)}
                               onMoveUp={() => moveProduct(cat.name, item.id, -1)}
                               onMoveDown={() => moveProduct(cat.name, item.id, 1)} />
                           ))}
