@@ -220,7 +220,7 @@
   .lookbook-empty { text-align: center; padding: 40px; color: #9ca3af; }
   .lookbook-total { text-align: right; font-size: 1.4rem; font-weight: 700; color: #1a1a2e; padding-top: 16px; border-top: 2px solid #e5e7eb; }
 
-  /* Summary */
+  /* Summary — full table (list view) */
   .summary-section { margin-top: 40px; }
   .summary-section h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
   .summary-table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -231,6 +231,24 @@
   .summary-table .total-row td { border-bottom: none; }
   .summary-table .empty-row td { color: #d1d5db; font-style: italic; }
   .summary-thumb { width: 48px; height: 48px; object-fit: contain; border-radius: 6px; background: #f9fafb; }
+
+  /* Summary — condensed (grid view) */
+  .summary-condensed { margin-top: 40px; }
+  .summary-condensed h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+  .summary-condensed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .summary-card { background: white; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 12px; border: 1px solid #f3f4f6; transition: all 0.15s; }
+  .summary-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.08); }
+  .summary-card-img { width: 44px; height: 44px; min-width: 44px; object-fit: contain; border-radius: 6px; background: #f9fafb; }
+  .summary-card-img-empty { width: 44px; height: 44px; min-width: 44px; border-radius: 6px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #d1d5db; font-size: 1rem; }
+  .summary-card-info { flex: 1; min-width: 0; }
+  .summary-card-cat { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.8px; color: #9ca3af; font-weight: 600; }
+  .summary-card-name { font-size: 0.88rem; font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .summary-card-price { font-size: 1.05rem; font-weight: 700; color: #1a1a2e; white-space: nowrap; }
+  .summary-card-empty { color: #d1d5db; font-size: 0.82rem; font-style: italic; }
+  .summary-total-bar { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .summary-total-bar .stb-label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7; }
+  .summary-total-bar .stb-amount { font-size: 1.5rem; letter-spacing: -0.5px; }
+  @media (max-width: 480px) { .summary-condensed-grid { grid-template-columns: 1fr; } .summary-card { padding: 10px 12px; } }
 
   /* View toggle */
   .view-toggle { display: flex; gap: 4px; background: #f3f4f6; border-radius: 8px; padding: 3px; }
@@ -1022,7 +1040,31 @@ function App() {
         )}
       </div>
 
-      {viewMode !== 'compact' && <div className="summary-section">
+      {viewMode === 'grid' && <div className="summary-condensed">
+        <h2>Budget Summary</h2>
+        <div className="summary-condensed-grid">
+          {rooms.map(room => room.categories.map(cat => {
+            const item = selectedItems.find(i => i.categoryId === cat.id);
+            const t = item ? itemTotal(item) : 0;
+            return (
+              <div className="summary-card" key={cat.id}>
+                {item?.image ? <img className="summary-card-img" src={item.image} alt="" /> : <div className="summary-card-img-empty">—</div>}
+                <div className="summary-card-info">
+                  <div className="summary-card-cat">{cat.name}</div>
+                  {item ? <div className="summary-card-name">{item.name}</div> : <div className="summary-card-empty">Not selected</div>}
+                </div>
+                <div className="summary-card-price">{item ? (t > 0 ? `$${t.toLocaleString()}` : 'TBD') : ''}</div>
+              </div>
+            );
+          }))}
+        </div>
+        <div className="summary-total-bar">
+          <div><div className="stb-label">Total</div><div>{count}/{totalCategories} selected</div></div>
+          <div className="stb-amount">${total.toLocaleString()}</div>
+        </div>
+      </div>}
+
+      {viewMode === 'list' && <div className="summary-section">
         <h2>Budget Summary</h2>
         <table className="summary-table">
           <thead><tr><th></th><th>Room</th><th>Category</th><th>Selected</th><th style={{textAlign:'right'}}>Price</th></tr></thead>
