@@ -36,7 +36,7 @@ async function handleAPI(request, env, path, cors) {
     const [rooms, categories, products, selections] = await Promise.all([
       db.prepare('SELECT * FROM rooms ORDER BY sort_order').all(),
       db.prepare('SELECT * FROM categories ORDER BY sort_order').all(),
-      db.prepare('SELECT * FROM products ORDER BY category, sort_order, created_at').all(),
+      db.prepare('SELECT * FROM products ORDER BY category_id, sort_order, created_at').all(),
       db.prepare('SELECT * FROM selections').all(),
     ]);
 
@@ -46,6 +46,7 @@ async function handleAPI(request, env, path, cors) {
       categories: categories.results
         .filter(c => c.room_id === r.id)
         .map(c => ({
+          id: c.id,
           name: c.name,
           search_query: c.search_query || '',
           sort_order: c.sort_order,
@@ -53,11 +54,13 @@ async function handleAPI(request, env, path, cors) {
         })),
     }));
 
-    // Put products into their categories
+    // Put products into their categories (keyed by category_id)
     const productsByCategory = {};
     for (const p of products.results) {
-      if (!productsByCategory[p.category]) productsByCategory[p.category] = [];
-      productsByCategory[p.category].push({
+      const catId = p.category_id;
+      if (!catId) continue;
+      if (!productsByCategory[catId]) productsByCategory[catId] = [];
+      productsByCategory[catId].push({
         ...p,
         qty: p.qty ?? 1,
         unit: p.unit || 'each',
@@ -69,14 +72,14 @@ async function handleAPI(request, env, path, cors) {
     }
     for (const room of roomList) {
       for (const cat of room.categories) {
-        cat.products = productsByCategory[cat.name] || [];
+        cat.products = productsByCategory[cat.id] || [];
       }
     }
 
-    // Build selections map
+    // Build selections map (keyed by category_id)
     const selected = {};
     for (const s of selections.results) {
-      if (s.product_id) selected[s.category] = s.product_id;
+      if (s.product_id) selected[s.category_id] = s.product_id;
     }
 
     return json({ rooms: roomList, selected });
@@ -124,9 +127,9 @@ async function handleAPI(request, env, path, cors) {
 
   // PUT /api/categories/reorder — update sort_order for categories within a room
   if (path === '/api/categories/reorder' && method === 'PUT') {
-    const { room_id, order } = await request.json(); // order: array of category names
-    const stmt = db.prepare('UPDATE categories SET sort_order = ? WHERE name = ? AND room_id = ?');
-    const batch = order.map((name, i) => stmt.bind(i, name, room_id));
+    const { order } = await request.json(); // order: array of category IDs
+    const stmt = db.prepare('UPDATE categories SET sort_order = ? WHERE id = ?');
+    const batch = order.map((id, i) => stmt.bind(i, id));
     if (batch.length > 0) await db.batch(batch);
     return json({ success: true });
   }
@@ -144,44 +147,39 @@ async function handleAPI(request, env, path, cors) {
 
   // POST /api/categories — add a category
   if (path === '/api/categories' && method === 'POST') {
-    const { name, room_id, search_query } = await request.json();
+    const { id, name, room_id, search_query } = await request.json();
     if (!name) return json({ error: 'name required' }, 400);
+    const catId = id || crypto.randomUUID();
     const maxOrder = await db.prepare('SELECT MAX(sort_order) as mx FROM categories').first();
-    await db.prepare('INSERT OR IGNORE INTO categories (name, room_id, search_query, sort_order) VALUES (?, ?, ?, ?)')
-      .bind(name, room_id || null, search_query || '', (maxOrder?.mx ?? -1) + 1).run();
-    return json({ success: true });
+    await db.prepare('INSERT INTO categories (id, name, room_id, search_query, sort_order) VALUES (?, ?, ?, ?, ?)')
+      .bind(catId, name, room_id || null, search_query || '', (maxOrder?.mx ?? -1) + 1).run();
+    return json({ success: true, id: catId });
   }
 
-  // PUT /api/categories/:name — update category (name, search_query, room_id)
+  // PUT /api/categories/:id — update category (name, search_query, room_id)
   if (path.match(/^\/api\/categories\/[^/]+$/) && method === 'PUT') {
-    const catName = decodeURIComponent(path.split('/').pop());
+    const catId = path.split('/').pop();
     const body = await request.json();
     const updates = [];
     const values = [];
 
+    if (body.name !== undefined) { updates.push('name = ?'); values.push(body.name); }
     if (body.search_query !== undefined) { updates.push('search_query = ?'); values.push(body.search_query); }
     if (body.room_id !== undefined) { updates.push('room_id = ?'); values.push(body.room_id); }
-    if (body.new_name !== undefined && body.new_name !== catName) {
-      // Rename: update category name + all products referencing it
-      updates.push('name = ?');
-      values.push(body.new_name);
-      await db.prepare('UPDATE products SET category = ? WHERE category = ?').bind(body.new_name, catName).run();
-      await db.prepare('UPDATE selections SET category = ? WHERE category = ?').bind(body.new_name, catName).run();
-    }
 
     if (updates.length > 0) {
-      values.push(catName);
-      await db.prepare(`UPDATE categories SET ${updates.join(', ')} WHERE name = ?`).bind(...values).run();
+      values.push(catId);
+      await db.prepare(`UPDATE categories SET ${updates.join(', ')} WHERE id = ?`).bind(...values).run();
     }
     return json({ success: true });
   }
 
-  // DELETE /api/categories/:name — delete a category and its products
+  // DELETE /api/categories/:id — delete a category and its products
   if (path.match(/^\/api\/categories\/[^/]+$/) && method === 'DELETE') {
-    const catName = decodeURIComponent(path.split('/').pop());
-    await db.prepare('DELETE FROM products WHERE category = ?').bind(catName).run();
-    await db.prepare('DELETE FROM selections WHERE category = ?').bind(catName).run();
-    await db.prepare('DELETE FROM categories WHERE name = ?').bind(catName).run();
+    const catId = path.split('/').pop();
+    await db.prepare('DELETE FROM products WHERE category_id = ?').bind(catId).run();
+    await db.prepare('DELETE FROM selections WHERE category_id = ?').bind(catId).run();
+    await db.prepare('DELETE FROM categories WHERE id = ?').bind(catId).run();
     return json({ success: true });
   }
 
@@ -190,13 +188,13 @@ async function handleAPI(request, env, path, cors) {
   // POST /api/products
   if (path === '/api/products' && method === 'POST') {
     const body = await request.json();
-    const { id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit } = body;
+    const { id, category_id, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit } = body;
     const productId = id || crypto.randomUUID();
     await db.prepare(`
-      INSERT INTO products (id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit)
+      INSERT INTO products (id, category_id, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      productId, category, name || '', dim || '', notes || '', price || 0, url || '', image || null,
+      productId, category_id, name || '', dim || '', notes || '', price || 0, url || '', image || null,
       blurb || '', JSON.stringify(citations || []), JSON.stringify(pros || []),
       JSON.stringify(cons || []), rating || 0, JSON.stringify(features || []),
       qty ?? 1, unit || 'each'
@@ -238,12 +236,12 @@ async function handleAPI(request, env, path, cors) {
   if (path === '/api/selections' && method === 'PUT') {
     const body = await request.json();
     const stmt = db.prepare(`
-      INSERT INTO selections (category, product_id, updated_at) VALUES (?, ?, datetime('now'))
-      ON CONFLICT(category) DO UPDATE SET product_id = ?, updated_at = datetime('now')
+      INSERT INTO selections (category_id, product_id, updated_at) VALUES (?, ?, datetime('now'))
+      ON CONFLICT(category_id) DO UPDATE SET product_id = ?, updated_at = datetime('now')
     `);
     const batch = [];
-    for (const [category, productId] of Object.entries(body)) {
-      batch.push(stmt.bind(category, productId || null, productId || null));
+    for (const [categoryId, productId] of Object.entries(body)) {
+      batch.push(stmt.bind(categoryId, productId || null, productId || null));
     }
     if (batch.length > 0) await db.batch(batch);
     return json({ success: true });

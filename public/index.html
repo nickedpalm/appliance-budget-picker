@@ -368,10 +368,12 @@ const CheckIcon = () => (
 
 function useDebounce(fn, delay) {
   const timer = useRef(null);
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
   return useCallback((...args) => {
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => fn(...args), delay);
-  }, [fn, delay]);
+    timer.current = setTimeout(() => fnRef.current(...args), delay);
+  }, [delay]);
 }
 
 function ImportForm({ category, onImport, onCancel }) {
@@ -536,7 +538,8 @@ function Card({ item, selected, viewMode, onToggle, onDelete, onBlurbLoaded, onU
 }
 
 function Lookbook({ room, selectedItems, onClose }) {
-  const roomItems = selectedItems.filter(i => i.room === room.name);
+  if (!room) return null;
+  const roomItems = selectedItems.filter(i => i.roomId === room.id);
   const roomTotal = roomItems.reduce((s, i) => s + itemTotal(i), 0);
   return (
     <div className="lookbook-overlay" onClick={onClose}>
@@ -597,36 +600,36 @@ function App() {
   }, []);
 
   const toggleRoom = (roomId) => setCollapsedRooms(prev => ({ ...prev, [roomId]: !prev[roomId] }));
-  const toggleCat = (catName) => setCollapsedCats(prev => ({ ...prev, [catName]: !prev[catName] }));
+  const toggleCat = (catId) => setCollapsedCats(prev => ({ ...prev, [catId]: !prev[catId] }));
 
-  const toggle = (catName, productId) => {
+  const toggle = (catId, productId) => {
     setSelected(prev => {
-      const next = prev[catName] === productId ? { ...prev, [catName]: undefined } : { ...prev, [catName]: productId };
-      fetch(API_BASE + '/api/selections', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [catName]: next[catName] || null }) }).catch(() => {});
+      const next = prev[catId] === productId ? { ...prev, [catId]: undefined } : { ...prev, [catId]: productId };
+      fetch(API_BASE + '/api/selections', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [catId]: next[catId] || null }) }).catch(() => {});
       return next;
     });
   };
 
-  const addProduct = (catName, product) => {
-    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c) })));
+  const addProduct = (catId, product) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: [...c.products, product] } : c) })));
     setAddingTo(null);
-    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category: catName }) }).catch(() => {});
+    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category_id: catId }) }).catch(() => {});
   };
 
-  const importProduct = (catName, product) => {
-    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c) })));
+  const importProduct = (catId, product) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: [...c.products, product] } : c) })));
     setImportingTo(null);
-    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category: catName }) }).catch(() => {});
+    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category_id: catId }) }).catch(() => {});
   };
 
-  const deleteProduct = (catName, productId) => {
-    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.filter(p => p.id !== productId) } : c) })));
-    if (selected[catName] === productId) setSelected(prev => ({ ...prev, [catName]: undefined }));
+  const deleteProduct = (catId, productId) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.filter(p => p.id !== productId) } : c) })));
+    if (selected[catId] === productId) setSelected(prev => ({ ...prev, [catId]: undefined }));
     fetch(API_BASE + '/api/products/' + productId, { method: 'DELETE' }).catch(() => {});
   };
 
-  const updateBlurb = useCallback((catName, productId, reviewData) => {
-    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...reviewData } : p) } : c) })));
+  const updateBlurb = useCallback((catId, productId, reviewData) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...reviewData } : p) } : c) })));
     fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reviewData) }).catch(() => {});
   }, []);
 
@@ -634,8 +637,8 @@ function App() {
     fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
   }, 600);
 
-  const updateProductQty = useCallback((catName, productId, data) => {
-    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c) })));
+  const updateProductQty = useCallback((catId, productId, data) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c) })));
     saveProductQty(productId, data);
   }, [saveProductQty]);
 
@@ -643,17 +646,17 @@ function App() {
     fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
   }, 600);
 
-  const editProduct = useCallback((catName, productId, data) => {
+  const editProduct = useCallback((catId, productId, data) => {
     setRooms(prev => prev.map(r => ({
-      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c)
+      ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c)
     })));
     saveProductEdit(productId, data);
   }, [saveProductEdit]);
 
-  const moveProduct = (catName, productId, dir) => {
+  const moveProduct = (catId, productId, dir) => {
     setRooms(prev => prev.map(r => ({
       ...r, categories: r.categories.map(c => {
-        if (c.name !== catName) return c;
+        if (c.id !== catId) return c;
         const prods = [...c.products];
         const idx = prods.findIndex(p => p.id === productId);
         const newIdx = idx + dir;
@@ -686,22 +689,22 @@ function App() {
 
   const addCategory = (roomId, name, searchQuery) => {
     if (!name) return;
-    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: [...r.categories, { name, search_query: searchQuery || '', products: [] }] } : r));
+    const catId = crypto.randomUUID();
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: [...r.categories, { id: catId, name, search_query: searchQuery || '', products: [] }] } : r));
     setAddingCatTo(null); setNewCatName(''); setNewCatSearch('');
-    fetch(API_BASE + '/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, room_id: roomId, search_query: searchQuery || '' }) }).catch(() => {});
+    fetch(API_BASE + '/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: catId, name, room_id: roomId, search_query: searchQuery || '' }) }).catch(() => {});
   };
 
-  const saveCatName = useDebounce((oldName, newName) => {
-    if (oldName === newName) return;
-    fetch(API_BASE + '/api/categories/' + encodeURIComponent(oldName), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new_name: newName }) }).catch(() => {});
+  const saveCatName = useDebounce((catId, name) => {
+    fetch(API_BASE + '/api/categories/' + catId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }).catch(() => {});
   }, 800);
 
-  const saveCatSearch = useDebounce((catName, searchQuery) => {
-    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_query: searchQuery }) }).catch(() => {});
+  const saveCatSearch = useDebounce((catId, searchQuery) => {
+    fetch(API_BASE + '/api/categories/' + catId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_query: searchQuery }) }).catch(() => {});
   }, 800);
 
-  const updateCatName = (roomId, oldName, newName) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.name === oldName ? { ...c, name: newName } : c) } : r)); saveCatName(oldName, newName); };
-  const updateCatSearch = (roomId, catName, searchQuery) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.name === catName ? { ...c, search_query: searchQuery } : c) } : r)); saveCatSearch(catName, searchQuery); };
+  const updateCatName = (roomId, catId, newName) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.id === catId ? { ...c, name: newName } : c) } : r)); saveCatName(catId, newName); };
+  const updateCatSearch = (roomId, catId, searchQuery) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.id === catId ? { ...c, search_query: searchQuery } : c) } : r)); saveCatSearch(catId, searchQuery); };
 
   const moveRoom = (roomId, dir) => {
     setRooms(prev => {
@@ -713,29 +716,29 @@ function App() {
     });
   };
 
-  const moveCat = (roomId, catName, dir) => {
+  const moveCat = (roomId, catId, dir) => {
     setRooms(prev => prev.map(r => {
       if (r.id !== roomId) return r;
-      const cats = [...r.categories]; const idx = cats.findIndex(c => c.name === catName); const newIdx = idx + dir;
+      const cats = [...r.categories]; const idx = cats.findIndex(c => c.id === catId); const newIdx = idx + dir;
       if (newIdx < 0 || newIdx >= cats.length) return r;
       [cats[idx], cats[newIdx]] = [cats[newIdx], cats[idx]];
-      fetch(API_BASE + '/api/categories/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_id: roomId, order: cats.map(c => c.name) }) }).catch(() => {});
+      fetch(API_BASE + '/api/categories/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order: cats.map(c => c.id) }) }).catch(() => {});
       return { ...r, categories: cats };
     }));
   };
 
-  const deleteCategory = (roomId, catName) => {
-    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.filter(c => c.name !== catName) } : r));
-    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), { method: 'DELETE' }).catch(() => {});
+  const deleteCategory = (roomId, catId) => {
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.filter(c => c.id !== catId) } : r));
+    fetch(API_BASE + '/api/categories/' + catId, { method: 'DELETE' }).catch(() => {});
   };
 
   // Computed
   const selectedItems = useMemo(() => {
     const items = [];
     rooms.forEach(room => room.categories.forEach(cat => {
-      const selId = selected[cat.name];
+      const selId = selected[cat.id];
       const selProduct = selId ? cat.products.find(p => p.id === selId) : null;
-      if (selProduct) items.push({ ...selProduct, category: cat.name, room: room.name });
+      if (selProduct) items.push({ ...selProduct, category: cat.name, categoryId: cat.id, roomId: room.id, roomName: room.name });
     }));
     return items;
   }, [rooms, selected]);
@@ -777,9 +780,9 @@ function App() {
 
       {rooms.map((room, ri) => {
         const isCollapsed = collapsedRooms[room.id];
-        const roomSelCount = room.categories.filter(c => selected[c.name]).length;
+        const roomSelCount = room.categories.filter(c => selected[c.id]).length;
         const roomTotal = room.categories.reduce((s, c) => {
-          const sel = selected[c.name] ? c.products.find(p => p.id === selected[c.name]) : null;
+          const sel = selected[c.id] ? c.products.find(p => p.id === selected[c.id]) : null;
           return s + (sel ? itemTotal(sel) : 0);
         }, 0);
         return (
@@ -791,7 +794,7 @@ function App() {
                 <span className="room-summary">{roomSelCount}/{room.categories.length} selected{roomTotal > 0 ? ` \u2022 $${roomTotal.toLocaleString()}` : ''}</span>
               </div>
               <div className="room-actions" onClick={e => e.stopPropagation()}>
-                <button className="lookbook-btn" onClick={() => setLookbookRoom(room)}>Lookbook</button>
+                <button className="lookbook-btn" onClick={() => setLookbookRoom(room.id)}>Lookbook</button>
                 <div className="move-btns">
                   <button className="move-btn" disabled={ri === 0} onClick={() => moveRoom(room.id, -1)} title="Move up">&#9650;</button>
                   <button className="move-btn" disabled={ri === rooms.length - 1} onClick={() => moveRoom(room.id, 1)} title="Move down">&#9660;</button>
@@ -802,45 +805,44 @@ function App() {
 
             <div className={`room-body${isCollapsed ? ' collapsed' : ''}`}>
               {room.categories.map((cat, ci) => {
-                const catKey = room.id + ':' + cat.name;
-                const isCatCollapsed = collapsedCats[cat.name];
-                const selProduct = selected[cat.name] ? cat.products.find(p => p.id === selected[cat.name]) : null;
+                const isCatCollapsed = collapsedCats[cat.id];
+                const selProduct = selected[cat.id] ? cat.products.find(p => p.id === selected[cat.id]) : null;
                 return (
-                  <div className="category" key={room.id + ':' + ci}>
+                  <div className="category" key={cat.id}>
                     <div className="category-header">
                       <div className="category-header-left">
                         <div className="cat-move-btns">
-                          <button className="cat-move-btn" disabled={ci === 0} onClick={() => moveCat(room.id, cat.name, -1)}>&#9650;</button>
-                          <button className="cat-move-btn" disabled={ci === room.categories.length - 1} onClick={() => moveCat(room.id, cat.name, 1)}>&#9660;</button>
+                          <button className="cat-move-btn" disabled={ci === 0} onClick={() => moveCat(room.id, cat.id, -1)}>&#9650;</button>
+                          <button className="cat-move-btn" disabled={ci === room.categories.length - 1} onClick={() => moveCat(room.id, cat.id, 1)}>&#9660;</button>
                         </div>
-                        <span className={`cat-collapse-icon${isCatCollapsed ? ' collapsed' : ''}`} onClick={() => toggleCat(cat.name)}>&#9660;</span>
-                        <input className="cat-name-input" value={cat.name} onChange={e => updateCatName(room.id, cat.name, e.target.value)} />
-                        <input className="cat-search-input" value={cat.search_query} onChange={e => updateCatSearch(room.id, cat.name, e.target.value)} placeholder="search query..." title="Google Shopping search query" />
+                        <span className={`cat-collapse-icon${isCatCollapsed ? ' collapsed' : ''}`} onClick={() => toggleCat(cat.id)}>&#9660;</span>
+                        <input className="cat-name-input" value={cat.name} onChange={e => updateCatName(room.id, cat.id, e.target.value)} />
+                        <input className="cat-search-input" value={cat.search_query} onChange={e => updateCatSearch(room.id, cat.id, e.target.value)} placeholder="search query..." title="Google Shopping search query" />
                         {selProduct && <span className="cat-selected-badge">{selProduct.name.slice(0,25)}{selProduct.name.length > 25 ? '...' : ''} ${itemTotal(selProduct).toLocaleString()}</span>}
-                        <button className="cat-delete-btn" title="Remove category" onClick={() => { if (confirm('Remove "' + cat.name + '" and all its products?')) deleteCategory(room.id, cat.name); }}>&times;</button>
+                        <button className="cat-delete-btn" title="Remove category" onClick={() => { if (confirm('Remove "' + cat.name + '" and all its products?')) deleteCategory(room.id, cat.id); }}>&times;</button>
                       </div>
                       <div className="cat-actions">
                         {cat.search_query && <a className="action-btn purple" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(cat.search_query)} target="_blank" rel="noopener">&#128269;</a>}
-                        <button className="action-btn blue" onClick={() => { setImportingTo(importingTo === catKey ? null : catKey); setAddingTo(null); }}>{importingTo === catKey ? 'Cancel' : 'Import'}</button>
-                        <button className="action-btn green" onClick={() => { setAddingTo(addingTo === catKey ? null : catKey); setImportingTo(null); }}>{addingTo === catKey ? 'Cancel' : '+ Add'}</button>
+                        <button className="action-btn blue" onClick={() => { setImportingTo(importingTo === cat.id ? null : cat.id); setAddingTo(null); }}>{importingTo === cat.id ? 'Cancel' : 'Import'}</button>
+                        <button className="action-btn green" onClick={() => { setAddingTo(addingTo === cat.id ? null : cat.id); setImportingTo(null); }}>{addingTo === cat.id ? 'Cancel' : '+ Add'}</button>
                       </div>
                     </div>
                     <div className={`cat-body${isCatCollapsed ? ' collapsed' : ''}`}>
-                      {importingTo === catKey && <ImportForm category={cat.name} onImport={p => importProduct(cat.name, p)} onCancel={() => setImportingTo(null)} />}
-                      {addingTo === catKey && <AddForm category={cat.name} onSave={p => addProduct(cat.name, p)} onCancel={() => setAddingTo(null)} />}
+                      {importingTo === cat.id && <ImportForm category={cat.name} onImport={p => importProduct(cat.id, p)} onCancel={() => setImportingTo(null)} />}
+                      {addingTo === cat.id && <AddForm category={cat.name} onSave={p => addProduct(cat.id, p)} onCancel={() => setAddingTo(null)} />}
                       {cat.products.length > 0 ? (
                         <div className={`card-grid ${viewMode}`}>
                           {cat.products.map((item, ci2) => (
-                            <Card key={item.id} item={item} selected={selected[cat.name] === item.id}
+                            <Card key={item.id} item={item} selected={selected[cat.id] === item.id}
                               viewMode={viewMode}
                               isFirst={ci2 === 0} isLast={ci2 === cat.products.length - 1}
-                              onToggle={() => toggle(cat.name, item.id)}
-                              onDelete={() => deleteProduct(cat.name, item.id)}
-                              onBlurbLoaded={(id, reviewData) => updateBlurb(cat.name, id, reviewData)}
-                              onUpdateQty={(id, data) => updateProductQty(cat.name, id, data)}
-                              onEdit={(data) => editProduct(cat.name, item.id, data)}
-                              onMoveUp={() => moveProduct(cat.name, item.id, -1)}
-                              onMoveDown={() => moveProduct(cat.name, item.id, 1)} />
+                              onToggle={() => toggle(cat.id, item.id)}
+                              onDelete={() => deleteProduct(cat.id, item.id)}
+                              onBlurbLoaded={(id, reviewData) => updateBlurb(cat.id, id, reviewData)}
+                              onUpdateQty={(id, data) => updateProductQty(cat.id, id, data)}
+                              onEdit={(data) => editProduct(cat.id, item.id, data)}
+                              onMoveUp={() => moveProduct(cat.id, item.id, -1)}
+                              onMoveDown={() => moveProduct(cat.id, item.id, 1)} />
                           ))}
                         </div>
                       ) : <div className="empty">No products yet</div>}
@@ -883,10 +885,10 @@ function App() {
             {rooms.map(room => {
               if (room.categories.length === 0) return null;
               return room.categories.map((cat, ci) => {
-                const item = selectedItems.find(i => i.category === cat.name);
+                const item = selectedItems.find(i => i.categoryId === cat.id);
                 const t = item ? itemTotal(item) : 0;
                 return (
-                  <tr key={cat.name} className={!item ? 'empty-row' : ''}>
+                  <tr key={cat.id} className={!item ? 'empty-row' : ''}>
                     <td>{item?.image ? <img className="summary-thumb" src={item.image} alt="" /> : null}</td>
                     <td>{ci === 0 ? <strong>{room.name}</strong> : ''}</td>
                     <td>{cat.name}</td>
@@ -901,7 +903,7 @@ function App() {
         </table>
       </div>}
 
-      {lookbookRoom && <Lookbook room={lookbookRoom} selectedItems={selectedItems} onClose={() => setLookbookRoom(null)} />}
+      {lookbookRoom && <Lookbook room={rooms.find(r => r.id === lookbookRoom)} selectedItems={selectedItems} onClose={() => setLookbookRoom(null)} />}
     </div>
   );
 }
