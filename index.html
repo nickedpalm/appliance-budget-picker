@@ -120,6 +120,13 @@
 
   .empty { text-align: center; padding: 40px; color: #9ca3af; border: 2px dashed #e5e7eb; border-radius: 12px; }
 
+  .add-category-section { text-align: center; margin: 32px 0; }
+  .add-category-btn { background: none; border: 2px dashed #d1d5db; border-radius: 12px; padding: 16px 32px; font-size: 1rem; color: #6b7280; cursor: pointer; transition: all 0.15s; font-weight: 600; width: 100%; }
+  .add-category-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+  .add-category-form { background: white; border: 2px dashed #8b5cf6; border-radius: 12px; padding: 20px; display: flex; gap: 12px; align-items: flex-end; }
+  .add-category-form .form-group { flex: 1; }
+  .add-category-form .form-group.search { flex: 2; }
+
   .summary-section { margin-top: 40px; }
   .summary-section h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
   .summary-table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -158,9 +165,7 @@ const CATEGORY_SEARCH = {
   'Sink': 'kitchen undermount sink stainless steel',
   'Faucet': 'kitchen faucet pull-down sprayer',
   'Range Hood': '30" range hood stainless steel OR panel ready',
-  'Washer': 'compact 24" washer apartment',
-  'Dryer': 'compact 24" ventless dryer apartment',
-  'Bathroom Vanity': 'bathroom vanity with sink',
+'Bathroom Vanity': 'bathroom vanity with sink',
   'Toilet': 'toilet elongated bowl',
   'Bathroom Faucet': 'bathroom faucet single hole',
   'Shower/Tub': 'bathtub shower combo',
@@ -334,6 +339,10 @@ function App() {
   const [addingTo, setAddingTo] = useState(null);
   const [importingTo, setImportingTo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatSearch, setNewCatSearch] = useState('');
+  const [catSearchOverrides, setCatSearchOverrides] = useState({});
 
   // Load data from API on mount
   React.useEffect(() => {
@@ -383,6 +392,21 @@ function App() {
     if (selected[cat] === id) setSelected(prev => ({ ...prev, [cat]: undefined }));
     fetch(API_BASE + '/api/products/' + id, { method: 'DELETE' }).catch(() => {});
   };
+
+  const addCategory = (name, searchQuery) => {
+    if (!name || data[name]) return;
+    setData(prev => ({ ...prev, [name]: [] }));
+    if (searchQuery) setCatSearchOverrides(prev => ({ ...prev, [name]: searchQuery }));
+    setAddingCategory(false);
+    setNewCatName('');
+    setNewCatSearch('');
+    fetch(API_BASE + '/api/categories', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }).catch(() => {});
+  };
+
+  const getSearchQuery = (category) => catSearchOverrides[category] || CATEGORY_SEARCH[category] || null;
 
   const updateBlurb = useCallback((cat, id, reviewData) => {
     setData(prev => ({
@@ -438,8 +462,8 @@ function App() {
           <div className="category-header">
             <h2>{category}</h2>
             <div className="cat-actions">
-              {CATEGORY_SEARCH[category] && (
-                <a className="search-btn" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(CATEGORY_SEARCH[category])} target="_blank" rel="noopener">
+              {getSearchQuery(category) && (
+                <a className="search-btn" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(getSearchQuery(category))} target="_blank" rel="noopener">
                   &#128269; Search
                 </a>
               )}
@@ -465,6 +489,27 @@ function App() {
           ) : <div className="empty">No options yet. Import from a URL or add manually.</div>}
         </div>
       ))}
+
+      <div className="add-category-section">
+        {addingCategory ? (
+          <div className="add-category-form">
+            <div className="form-group">
+              <label>Category Name</label>
+              <input value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="e.g. Bathroom Mirror" onKeyDown={e => e.key === 'Enter' && addCategory(newCatName, newCatSearch)} />
+            </div>
+            <div className="form-group search">
+              <label>Search Query (optional)</label>
+              <input value={newCatSearch} onChange={e => setNewCatSearch(e.target.value)} placeholder='e.g. bathroom mirror LED 36 inch' onKeyDown={e => e.key === 'Enter' && addCategory(newCatName, newCatSearch)} />
+            </div>
+            <div style={{display:'flex', gap:8, paddingBottom:1}}>
+              <button className="btn-save" onClick={() => addCategory(newCatName, newCatSearch)} disabled={!newCatName}>Add</button>
+              <button className="btn-cancel" onClick={() => { setAddingCategory(false); setNewCatName(''); setNewCatSearch(''); }}>Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <button className="add-category-btn" onClick={() => setAddingCategory(true)}>+ Add Category</button>
+        )}
+      </div>
 
       <div className="summary-section">
         <h2>Budget Summary</h2>
