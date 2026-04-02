@@ -33,11 +33,12 @@ async function handleAPI(request, env, path, cors) {
 
   // GET /api/data — full state: rooms, categories (with search_query), products, selections
   if (path === '/api/data' && method === 'GET') {
-    const [rooms, categories, products, selections] = await Promise.all([
+    const [rooms, categories, products, selections, comments] = await Promise.all([
       db.prepare('SELECT * FROM rooms ORDER BY sort_order').all(),
       db.prepare('SELECT * FROM categories ORDER BY sort_order').all(),
       db.prepare('SELECT * FROM products ORDER BY category_id, sort_order, created_at').all(),
       db.prepare('SELECT * FROM selections').all(),
+      db.prepare('SELECT * FROM comments ORDER BY created_at').all(),
     ]);
 
     // Group categories by room
@@ -54,6 +55,13 @@ async function handleAPI(request, env, path, cors) {
         })),
     }));
 
+    // Group comments by product
+    const commentsByProduct = {};
+    for (const c of comments.results) {
+      if (!commentsByProduct[c.product_id]) commentsByProduct[c.product_id] = [];
+      commentsByProduct[c.product_id].push(c);
+    }
+
     // Put products into their categories (keyed by category_id)
     const productsByCategory = {};
     for (const p of products.results) {
@@ -68,6 +76,7 @@ async function handleAPI(request, env, path, cors) {
         pros: JSON.parse(p.pros || '[]'),
         cons: JSON.parse(p.cons || '[]'),
         features: JSON.parse(p.features || '[]'),
+        comments: commentsByProduct[p.id] || [],
       });
     }
     for (const room of roomList) {
@@ -244,6 +253,26 @@ async function handleAPI(request, env, path, cors) {
       batch.push(stmt.bind(categoryId, productId || null, productId || null));
     }
     if (batch.length > 0) await db.batch(batch);
+    return json({ success: true });
+  }
+
+  // --- Comments ---
+
+  // POST /api/comments
+  if (path === '/api/comments' && method === 'POST') {
+    const { product_id, author, body } = await request.json();
+    if (!product_id || !body) return json({ error: 'product_id and body required' }, 400);
+    const id = crypto.randomUUID();
+    await db.prepare('INSERT INTO comments (id, product_id, author, body) VALUES (?, ?, ?, ?)')
+      .bind(id, product_id, author || 'Anonymous', body).run();
+    const comment = await db.prepare('SELECT * FROM comments WHERE id = ?').bind(id).first();
+    return json({ success: true, comment });
+  }
+
+  // DELETE /api/comments/:id
+  if (path.match(/^\/api\/comments\/[^/]+$/) && method === 'DELETE') {
+    const commentId = path.split('/').pop();
+    await db.prepare('DELETE FROM comments WHERE id = ?').bind(commentId).run();
     return json({ success: true });
   }
 

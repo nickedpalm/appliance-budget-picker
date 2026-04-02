@@ -171,6 +171,26 @@
   .card-rating-badge { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
   .card-rating-badge .rb-star { color: #fbbf24; }
 
+  /* Comments */
+  .card-comments { margin-top: 10px; }
+  .comment-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+  .comment { background: #f9fafb; border-radius: 8px; padding: 8px 12px; font-size: 0.82rem; border: 1px solid #f0f0f0; }
+  .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+  .comment-author { font-weight: 600; color: #1a1a2e; font-size: 0.78rem; }
+  .comment-time { font-size: 0.68rem; color: #bbb; }
+  .comment-body { color: #4b5563; line-height: 1.4; }
+  .comment-delete { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 0.9rem; padding: 0 2px; transition: color 0.15s; line-height: 1; }
+  .comment-delete:hover { color: #ef4444; }
+  .comment-form { display: flex; gap: 6px; align-items: center; }
+  .comment-input { flex: 1; padding: 7px 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.82rem; outline: none; font-family: inherit; transition: border-color 0.15s; }
+  .comment-input:focus { border-color: #3b82f6; }
+  .comment-send { background: #1a1a2e; color: white; border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .comment-send:hover { background: #2d2d4e; }
+  .comment-send:disabled { opacity: 0.4; cursor: default; }
+  .comment-toggle { background: none; border: none; color: #9ca3af; font-size: 0.78rem; cursor: pointer; padding: 4px 0; transition: color 0.15s; font-family: inherit; display: flex; align-items: center; gap: 4px; }
+  .comment-toggle:hover { color: #3b82f6; }
+  .comment-count { background: #e5e7eb; color: #6b7280; font-size: 0.65rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+
   /* Qty/unit row on card */
   .card-qty-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.82rem; }
   .card-qty-row label { color: #6b7280; font-weight: 500; }
@@ -593,9 +613,12 @@ function parseBlurb(text, citations) {
   return html;
 }
 
-function Card({ item, selected, justSelected, viewMode, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function Card({ item, selected, justSelected, viewMode, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onEdit, onMoveUp, onMoveDown, onAddComment, onDeleteComment, isFirst, isLast }) {
   const [blurbLoading, setBlurbLoading] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const commentCount = (item.comments || []).length;
   const fetchBlurb = async (e) => {
     e.stopPropagation();
     setBlurbLoading(true);
@@ -680,6 +703,36 @@ function Card({ item, selected, justSelected, viewMode, onToggle, onDelete, onBl
             <button className="blurb-btn" onClick={fetchBlurb}>✨ Get AI review</button>
           )}
         </div>
+
+        <div className="card-comments" onClick={e => e.stopPropagation()}>
+          <button className="comment-toggle" onClick={() => setCommentsOpen(!commentsOpen)}>
+            💬 {commentCount > 0 ? <><span className="comment-count">{commentCount}</span> {commentsOpen ? 'Hide' : 'Comments'}</> : (commentsOpen ? 'Hide' : 'Comment')}
+          </button>
+          {commentsOpen && (
+            <>
+              {commentCount > 0 && (
+                <div className="comment-list">
+                  {(item.comments || []).map(c => (
+                    <div className="comment" key={c.id}>
+                      <div className="comment-header">
+                        <span className="comment-author">{c.author}</span>
+                        <span style={{display:'flex', alignItems:'center', gap: 6}}>
+                          <span className="comment-time">{c.created_at?.slice(5, 16)}</span>
+                          <button className="comment-delete" onClick={() => onDeleteComment(c.id)} title="Delete">&times;</button>
+                        </span>
+                      </div>
+                      <div className="comment-body">{c.body}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="comment-form">
+                <input className="comment-input" value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Add a comment..." onKeyDown={e => { if (e.key === 'Enter' && commentText.trim()) { onAddComment(commentText); setCommentText(''); } }} />
+                <button className="comment-send" disabled={!commentText.trim()} onClick={() => { onAddComment(commentText); setCommentText(''); }}>Send</button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -737,6 +790,10 @@ function App() {
   const [viewMode, setViewMode] = useState('grid'); // grid, compact, list
   const [justSelected, setJustSelected] = useState(null);
   const toast = useToast();
+  const [userName, setUserName] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('name') || localStorage.getItem('renopicker_name') || '';
+  });
 
   useEffect(() => {
     fetch(API_BASE + '/api/data')
@@ -923,6 +980,25 @@ function App() {
     toast.add('Category removed', { icon: '🗑️', duration: 3200, undo: () => { clearTimeout(timer); if (deleted) setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: [...r.categories, deleted] } : r)); } });
   };
 
+  const addComment = async (catId, productId, body) => {
+    if (!body.trim()) return;
+    const author = userName || 'Anonymous';
+    const tempComment = { id: 'tmp-' + Date.now(), product_id: productId, author, body: body.trim(), created_at: new Date().toISOString().replace('T', ' ').slice(0, 19) };
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, comments: [...(p.comments || []), tempComment] } : p) } : c) })));
+    try {
+      const resp = await fetch(API_BASE + '/api/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product_id: productId, author, body: body.trim() }) });
+      const json = await resp.json();
+      if (json.comment) {
+        setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, comments: (p.comments || []).map(cm => cm.id === tempComment.id ? json.comment : cm) } : p) } : c) })));
+      }
+    } catch {}
+  };
+
+  const deleteComment = (catId, productId, commentId) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.id === catId ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, comments: (p.comments || []).filter(cm => cm.id !== commentId) } : p) } : c) })));
+    fetch(API_BASE + '/api/comments/' + commentId, { method: 'DELETE' }).catch(() => {});
+  };
+
   // Computed
   const selectedItems = useMemo(() => {
     const items = [];
@@ -949,6 +1025,11 @@ function App() {
         <h1>RenoPicker</h1>
         <p>Select products, compare options, track your budget.</p>
         <div className="context">Clinton Hill Coops — Brooklyn, NY</div>
+        {!userName && <div style={{marginTop: 12, display:'flex', gap: 8, justifyContent:'center', alignItems:'center'}}>
+          <input style={{padding:'6px 12px', border:'1.5px solid #e5e7eb', borderRadius: 8, fontSize:'0.88rem', outline:'none', fontFamily:'inherit', width: 160, textAlign:'center'}} placeholder="Your name" onKeyDown={e => { if (e.key === 'Enter' && e.target.value.trim()) { setUserName(e.target.value.trim()); localStorage.setItem('renopicker_name', e.target.value.trim()); }}} />
+          <span style={{fontSize:'0.78rem', color:'#9ca3af'}}>for comments</span>
+        </div>}
+        {userName && <div style={{marginTop: 8, fontSize:'0.82rem', color:'#6b7280'}}>Commenting as <strong style={{color:'#1a1a2e'}}>{userName}</strong> <button onClick={() => { setUserName(''); localStorage.removeItem('renopicker_name'); }} style={{background:'none', border:'none', color:'#9ca3af', cursor:'pointer', fontSize:'0.75rem', textDecoration:'underline'}}>change</button></div>}
       </div>
 
       <div className="budget-banner">
@@ -1039,7 +1120,9 @@ function App() {
                               onUpdateQty={(id, data) => updateProductQty(cat.id, id, data)}
                               onEdit={(data) => editProduct(cat.id, item.id, data)}
                               onMoveUp={() => moveProduct(cat.id, item.id, -1)}
-                              onMoveDown={() => moveProduct(cat.id, item.id, 1)} />
+                              onMoveDown={() => moveProduct(cat.id, item.id, 1)}
+                              onAddComment={(body) => addComment(cat.id, item.id, body)}
+                              onDeleteComment={(commentId) => deleteComment(cat.id, item.id, commentId)} />
                           ))}
                         </div>
                       ) : <div className="empty"><div className="empty-icon">📦</div>No products yet<div className="empty-hint">Use Import or + Add above to get started</div></div>}
