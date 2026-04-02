@@ -255,6 +255,8 @@
   .list .card-edit-input.dim { font-size: 0.78rem; width: 140px; display: none; }
   .list .card-edit-input.notes { display: none; }
   .list .card-review { display: none; }
+  .list .list-rating { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; }
+  .list .list-rating .rating-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .list .card-qty-row { display: none; }
   .list .blurb-btn { display: none; }
   .list .card-footer { margin-left: auto; flex-shrink: 0; }
@@ -450,7 +452,7 @@ function parseBlurb(text, citations) {
   return html;
 }
 
-function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
+function Card({ item, selected, viewMode, onToggle, onDelete, onBlurbLoaded, onUpdateQty, onEdit, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [blurbLoading, setBlurbLoading] = useState(false);
   const fetchBlurb = async (e) => {
     e.stopPropagation();
@@ -481,6 +483,13 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty, 
         <input className="card-edit-input name" value={item.name} onClick={e => e.stopPropagation()} onChange={e => onEdit({ name: e.target.value })} placeholder="Product name" />
         <input className="card-edit-input dim" value={item.dim || ''} onClick={e => e.stopPropagation()} onChange={e => onEdit({ dim: e.target.value })} placeholder="Dimensions" />
         <input className="card-edit-input notes" value={item.notes || ''} onClick={e => e.stopPropagation()} onChange={e => onEdit({ notes: e.target.value })} placeholder="Notes" />
+
+        {viewMode === 'list' && item.rating > 0 && (
+          <div className="list-rating" onClick={e => e.stopPropagation()}>
+            <span className="rating-dot" style={{background: item.rating >= 7 ? '#10b981' : item.rating >= 5 ? '#f59e0b' : '#ef4444'}} />
+            <span style={{color: item.rating >= 7 ? '#059669' : item.rating >= 5 ? '#d97706' : '#dc2626'}}>{item.rating}/10</span>
+          </div>
+        )}
 
         <div className="card-qty-row" onClick={e => e.stopPropagation()}>
           <input className="qty-input" type="number" min="0" step="any" value={item.qty ?? 1} onChange={e => onUpdateQty(item.id, { qty: Number(e.target.value) || 0 })} />
@@ -823,6 +832,7 @@ function App() {
                         <div className={`card-grid ${viewMode}`}>
                           {cat.products.map((item, ci2) => (
                             <Card key={item.id} item={item} selected={selected[cat.name] === item.id}
+                              viewMode={viewMode}
                               isFirst={ci2 === 0} isLast={ci2 === cat.products.length - 1}
                               onToggle={() => toggle(cat.name, item.id)}
                               onDelete={() => deleteProduct(cat.name, item.id)}
@@ -865,7 +875,7 @@ function App() {
         )}
       </div>
 
-      <div className="summary-section">
+      {viewMode !== 'compact' && <div className="summary-section">
         <h2>Budget Summary</h2>
         <table className="summary-table">
           <thead><tr><th></th><th>Room</th><th>Category</th><th>Selected</th><th style={{textAlign:'right'}}>Price</th></tr></thead>
@@ -889,7 +899,7 @@ function App() {
             <tr className="total-row"><td colSpan="4" style={{textAlign:'right'}}>TOTAL</td><td style={{textAlign:'right', fontSize:'1.2rem'}}>${total.toLocaleString()}</td></tr>
           </tbody>
         </table>
-      </div>
+      </div>}
 
       {lookbookRoom && <Lookbook room={lookbookRoom} selectedItems={selectedItems} onClose={() => setLookbookRoom(null)} />}
     </div>
