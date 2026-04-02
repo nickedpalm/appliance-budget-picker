@@ -2,6 +2,7 @@ name = "appliance-picker"
 main = "src/worker.js"
 compatibility_date = "2024-12-01"
 account_id = "b6bb6e004af5365ed33acf808713aae3"
+workers_dev = true
 
 [[d1_databases]]
 binding = "DB"
@@ -11,6 +12,6 @@ database_id = "2e6315e3-b9eb-4d18-b1fa-bebda081c431"
 [vars]
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/nickedpalm/appliance-budget-picker/main/index.html"
 
-routes = [
-  { pattern = "365.nickpalm.com/*", zone_name = "nickpalm.com" }
-]
+[[routes]]
+pattern = "365.nickpalm.com/*"
+zone_name = "nickpalm.com"
