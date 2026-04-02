@@ -34,11 +34,13 @@
   .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; }
   .category-header h2 { font-size: 1.3rem; color: #1a1a2e; }
   .cat-actions { display: flex; gap: 8px; }
-  .add-btn, .import-btn { border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: all 0.15s; color: white; }
+  .add-btn, .import-btn, .search-btn { border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: all 0.15s; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
   .add-btn { background: #10b981; }
   .add-btn:hover { background: #059669; transform: translateY(-1px); }
   .import-btn { background: #3b82f6; }
   .import-btn:hover { background: #2563eb; transform: translateY(-1px); }
+  .search-btn { background: #8b5cf6; }
+  .search-btn:hover { background: #7c3aed; transform: translateY(-1px); }
 
   .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
   .card { background: white; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; transition: all 0.2s; cursor: pointer; position: relative; }
@@ -146,12 +148,33 @@ const { useState, useMemo, useCallback } = React;
 const WORKER_URL = 'https://appliance-parser.nick-ed-palm.workers.dev';
 const API_BASE = window.location.origin;
 
-const FALLBACK_DATA = {
-  Refrigerator: [],
-  Dishwasher: [],
-  Stove: [],
-  Microwave: [],
-  Sink: [],
+const FALLBACK_DATA = {};
+
+const CATEGORY_SEARCH = {
+  'Refrigerator': '29-30" counter depth french door OR bottom freezer refrigerator stainless steel OR panel ready',
+  'Dishwasher': '24" panel ready dishwasher',
+  'Stove': '30" slide-in double oven gas range electric oven',
+  'Microwave': 'built-in microwave trim kit 24"',
+  'Sink': 'kitchen undermount sink stainless steel',
+  'Faucet': 'kitchen faucet pull-down sprayer',
+  'Range Hood': '30" range hood stainless steel OR panel ready',
+  'Washer': 'compact 24" washer apartment',
+  'Dryer': 'compact 24" ventless dryer apartment',
+  'Bathroom Vanity': 'bathroom vanity with sink',
+  'Toilet': 'toilet elongated bowl',
+  'Bathroom Faucet': 'bathroom faucet single hole',
+  'Shower/Tub': 'bathtub shower combo',
+  'Bathroom Tile': 'bathroom floor tile',
+  'Lighting': 'ceiling light fixture modern',
+  'Flooring': 'hardwood OR engineered wood flooring',
+  'Countertops': 'quartz countertop kitchen',
+  'Cabinets': 'kitchen cabinets shaker style',
+  'Backsplash': 'kitchen backsplash tile subway',
+  'Cabinet Hardware': 'cabinet pulls handles modern',
+  'Paint': 'interior wall paint',
+  'Interior Doors': 'interior door pre-hung',
+  'Window Treatments': 'window blinds OR shades',
+  'Closet System': 'closet organizer system',
 };
 
 const CheckIcon = () => (
@@ -415,6 +438,11 @@ function App() {
           <div className="category-header">
             <h2>{category}</h2>
             <div className="cat-actions">
+              {CATEGORY_SEARCH[category] && (
+                <a className="search-btn" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(CATEGORY_SEARCH[category])} target="_blank" rel="noopener">
+                  &#128269; Search
+                </a>
+              )}
               <button className="import-btn" onClick={() => { setImportingTo(importingTo === category ? null : category); setAddingTo(null); }}>
                 {importingTo === category ? '- Cancel' : 'Import from URL'}
               </button>
