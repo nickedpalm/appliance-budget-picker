@@ -30,25 +30,35 @@
   .budget-chip { background: rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; }
   .budget-chip .chip-price { opacity: 0.7; margin-left: 6px; }
 
-  /* Room styles */
-  .room { margin-bottom: 40px; background: white; border-radius: 16px; padding: 24px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
-  .room-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 3px solid #e5e7eb; }
+  /* Room */
+  .room { margin-bottom: 40px; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); overflow: hidden; }
+  .room-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 28px; border-bottom: 3px solid #e5e7eb; cursor: pointer; user-select: none; }
+  .room-header:hover { background: #fafbfc; }
   .room-header-left { display: flex; align-items: center; gap: 12px; }
+  .room-collapse-icon { font-size: 0.8rem; color: #9ca3af; transition: transform 0.2s; width: 20px; text-align: center; }
+  .room-collapse-icon.collapsed { transform: rotate(-90deg); }
   .room-name { font-size: 1.5rem; font-weight: 700; color: #1a1a2e; background: none; border: none; border-bottom: 2px solid transparent; padding: 2px 4px; cursor: text; transition: border-color 0.15s; outline: none; font-family: inherit; }
   .room-name:hover { border-bottom-color: #d1d5db; }
   .room-name:focus { border-bottom-color: #3b82f6; }
+  .room-summary { font-size: 0.85rem; color: #6b7280; margin-left: 8px; }
   .room-actions { display: flex; gap: 8px; align-items: center; }
   .room-delete-btn { background: none; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #9ca3af; cursor: pointer; transition: all 0.15s; }
   .room-delete-btn:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+  .lookbook-btn { background: none; border: 1px solid #8b5cf6; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #8b5cf6; cursor: pointer; transition: all 0.15s; font-weight: 600; }
+  .lookbook-btn:hover { background: #8b5cf6; color: white; }
   .move-btn { background: none; border: 1px solid #e5e7eb; border-radius: 6px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #9ca3af; transition: all 0.15s; font-size: 0.9rem; padding: 0; }
   .move-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; background: #eff6ff; }
   .move-btn:disabled { opacity: 0.25; cursor: default; }
   .move-btns { display: flex; gap: 2px; }
+  .room-body { padding: 0 28px 24px; }
+  .room-body.collapsed { display: none; }
 
-  /* Category styles */
-  .category { margin-bottom: 24px; }
+  /* Category */
+  .category { margin-top: 20px; }
   .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #f3f4f6; }
   .category-header-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .cat-collapse-icon { font-size: 0.65rem; color: #d1d5db; cursor: pointer; width: 14px; text-align: center; transition: transform 0.2s; }
+  .cat-collapse-icon.collapsed { transform: rotate(-90deg); }
   .cat-name-input { font-size: 1.15rem; font-weight: 600; color: #1a1a2e; background: none; border: none; border-bottom: 1px solid transparent; padding: 2px 4px; cursor: text; transition: border-color 0.15s; outline: none; font-family: inherit; min-width: 80px; max-width: 200px; }
   .cat-name-input:hover { border-bottom-color: #d1d5db; }
   .cat-name-input:focus { border-bottom-color: #3b82f6; }
@@ -56,6 +66,7 @@
   .cat-search-input:hover { border-color: #e5e7eb; }
   .cat-search-input:focus { border-color: #8b5cf6; background: #faf5ff; }
   .cat-search-input::placeholder { color: #d1d5db; }
+  .cat-selected-badge { font-size: 0.75rem; color: #059669; background: #ecfdf5; padding: 2px 8px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
   .cat-delete-btn { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 1.1rem; padding: 4px; transition: color 0.15s; line-height: 1; }
   .cat-delete-btn:hover { color: #ef4444; }
   .cat-move-btn { background: none; border: none; color: #d1d5db; cursor: pointer; font-size: 0.75rem; padding: 2px; transition: color 0.15s; line-height: 1; }
@@ -70,14 +81,15 @@
   .action-btn.blue:hover { background: #2563eb; }
   .action-btn.purple { background: #8b5cf6; }
   .action-btn.purple:hover { background: #7c3aed; }
+  .cat-body.collapsed { display: none; }
 
-  .add-cat-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; }
+  .add-cat-row { display: flex; gap: 8px; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed #e5e7eb; }
   .add-cat-row input { padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; outline: none; font-family: inherit; }
   .add-cat-row input:focus { border-color: #3b82f6; }
   .add-cat-row .cat-name-field { width: 160px; }
   .add-cat-row .cat-search-field { flex: 1; }
   .add-cat-inline-btn { border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: all 0.15s; }
-  .add-cat-trigger { background: none; border: 1px dashed #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; color: #9ca3af; cursor: pointer; transition: all 0.15s; width: 100%; margin-top: 12px; }
+  .add-cat-trigger { background: none; border: 1px dashed #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 0.85rem; color: #9ca3af; cursor: pointer; transition: all 0.15s; width: 100%; margin-top: 16px; }
   .add-cat-trigger:hover { border-color: #8b5cf6; color: #8b5cf6; }
 
   /* Add room */
@@ -129,8 +141,17 @@
   .card-footer { display: flex; justify-content: space-between; align-items: center; }
   .card-price { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; }
   .card-price.zero { color: #9ca3af; font-size: 1rem; }
+  .card-price .price-detail { font-size: 0.75rem; font-weight: 400; color: #6b7280; display: block; }
   .card-link { color: #3b82f6; font-size: 0.85rem; text-decoration: none; font-weight: 500; padding: 4px 10px; border-radius: 6px; transition: background 0.15s; }
   .card-link:hover { background: #dbeafe; }
+
+  /* Qty/unit row on card */
+  .card-qty-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.82rem; }
+  .card-qty-row label { color: #6b7280; font-weight: 500; }
+  .qty-input { width: 60px; padding: 3px 6px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 0.82rem; outline: none; text-align: center; }
+  .qty-input:focus { border-color: #3b82f6; }
+  .unit-select { padding: 3px 6px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 0.82rem; outline: none; background: white; color: #4b5563; }
+  .unit-select:focus { border-color: #3b82f6; }
 
   .import-form { background: #f9fafb; border-radius: 12px; padding: 20px; border: 2px dashed #3b82f6; margin-bottom: 14px; }
   .import-form h3 { margin-bottom: 12px; color: #3b82f6; font-size: 1rem; }
@@ -145,12 +166,13 @@
 
   .add-form { background: #f9fafb; border-radius: 12px; padding: 20px; border: 2px dashed #10b981; margin-bottom: 14px; }
   .add-form h3 { margin-bottom: 16px; color: #10b981; font-size: 1rem; }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   .form-group { display: flex; flex-direction: column; }
   .form-group.full { grid-column: 1 / -1; }
+  .form-group.half { grid-column: span 1; }
   .form-group label { font-size: 0.8rem; font-weight: 600; color: #6b7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .form-group input { padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; transition: border-color 0.15s; outline: none; }
-  .form-group input:focus { border-color: #3b82f6; }
+  .form-group input, .form-group select { padding: 10px 14px; border: 1.5px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; transition: border-color 0.15s; outline: none; }
+  .form-group input:focus, .form-group select:focus { border-color: #3b82f6; }
   .form-actions { margin-top: 16px; display: flex; gap: 8px; }
   .form-actions button { padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
   .btn-save { background: #10b981; color: white; }
@@ -160,6 +182,25 @@
 
   .empty { text-align: center; padding: 30px; color: #d1d5db; font-size: 0.9rem; }
 
+  /* Lookbook modal */
+  .lookbook-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .lookbook-modal { background: white; border-radius: 20px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 36px; position: relative; }
+  .lookbook-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer; }
+  .lookbook-close:hover { color: #1a1a2e; }
+  .lookbook-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; color: #1a1a2e; }
+  .lookbook-subtitle { font-size: 0.9rem; color: #6b7280; margin-bottom: 24px; }
+  .lookbook-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 28px; }
+  .lookbook-item { background: #f9fafb; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+  .lookbook-item-img { width: 100%; height: 160px; object-fit: contain; background: white; }
+  .lookbook-item-body { padding: 14px; }
+  .lookbook-item-cat { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #8b5cf6; font-weight: 700; margin-bottom: 4px; }
+  .lookbook-item-name { font-weight: 600; font-size: 0.95rem; color: #1a1a2e; margin-bottom: 4px; }
+  .lookbook-item-price { font-weight: 700; font-size: 1.1rem; color: #1a1a2e; }
+  .lookbook-item-dim { font-size: 0.8rem; color: #9ca3af; }
+  .lookbook-empty { text-align: center; padding: 40px; color: #9ca3af; }
+  .lookbook-total { text-align: right; font-size: 1.4rem; font-weight: 700; color: #1a1a2e; padding-top: 16px; border-top: 2px solid #e5e7eb; }
+
+  /* Summary */
   .summary-section { margin-top: 40px; }
   .summary-section h2 { font-size: 1.3rem; margin-bottom: 16px; color: #1a1a2e; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
   .summary-table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -169,7 +210,6 @@
   .summary-table .total-row { background: #10b981; color: white; font-weight: 700; font-size: 1.1rem; }
   .summary-table .total-row td { border-bottom: none; }
   .summary-table .empty-row td { color: #d1d5db; font-style: italic; }
-  .summary-table .room-label td { background: #f3f4f6; font-weight: 700; font-size: 0.9rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
   .summary-thumb { width: 48px; height: 48px; object-fit: contain; border-radius: 6px; background: #f9fafb; }
 
   @media (max-width: 768px) {
@@ -182,6 +222,7 @@
     .category-header-left { flex-wrap: wrap; }
     .add-cat-row { flex-wrap: wrap; }
     .add-room-form { flex-direction: column; }
+    .lookbook-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -192,6 +233,11 @@ const { useState, useMemo, useCallback, useEffect, useRef } = React;
 
 const WORKER_URL = 'https://appliance-parser.nick-ed-palm.workers.dev';
 const API_BASE = window.location.origin;
+const UNITS = ['each', 'sq ft', 'linear ft', 'box', 'case', 'gallon', 'roll'];
+
+function itemTotal(item) {
+  return (item.price || 0) * (item.qty || 1);
+}
 
 const CheckIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -199,7 +245,6 @@ const CheckIcon = () => (
   </svg>
 );
 
-// Debounce helper for saving editable fields
 function useDebounce(fn, delay) {
   const timer = useRef(null);
   return useCallback((...args) => {
@@ -219,7 +264,7 @@ function ImportForm({ category, onImport, onCancel }) {
       const json = await resp.json();
       if (json.success) {
         setStatus({ type: 'success', msg: `Imported: ${json.data.name}` });
-        setTimeout(() => onImport({ ...json.data, id: Date.now().toString() }), 600);
+        setTimeout(() => onImport({ ...json.data, id: Date.now().toString(), qty: 1, unit: 'each' }), 600);
       } else { setStatus({ type: 'error', msg: json.error || 'Failed to parse' }); }
     } catch (e) { setStatus({ type: 'error', msg: 'Network error: ' + e.message }); }
   };
@@ -242,21 +287,28 @@ function ImportForm({ category, onImport, onCancel }) {
 }
 
 function AddForm({ category, onSave, onCancel }) {
-  const [form, setForm] = useState({ name: '', dim: '', notes: '', price: '', url: '', image: '' });
+  const [form, setForm] = useState({ name: '', dim: '', notes: '', price: '', url: '', image: '', qty: '1', unit: 'each' });
   const set = (k, v) => setForm({ ...form, [k]: v });
   return (
     <div className="add-form">
       <h3>Add new {category}</h3>
       <div className="form-grid">
         <div className="form-group full"><label>Product Name</label><input value={form.name} onChange={e => set('name', e.target.value)} placeholder='e.g. Samsung 24" Built-In Microwave' /></div>
-        <div className="form-group"><label>Dimensions</label><input value={form.dim} onChange={e => set('dim', e.target.value)} placeholder='e.g. 24"W x 14"H x 22"D' /></div>
-        <div className="form-group"><label>Price ($)</label><input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" /></div>
+        <div className="form-group half"><label>Dimensions</label><input value={form.dim} onChange={e => set('dim', e.target.value)} placeholder='e.g. 24"W x 14"H x 22"D' /></div>
+        <div className="form-group half"><label>Price ($)</label><input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" /></div>
+        <div className="form-group half">
+          <label>Unit</label>
+          <select value={form.unit} onChange={e => set('unit', e.target.value)}>
+            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+          </select>
+        </div>
+        <div className="form-group full"><label>Quantity {form.unit !== 'each' ? `(${form.unit})` : ''}</label><input type="number" value={form.qty} onChange={e => set('qty', e.target.value)} placeholder="1" /></div>
         <div className="form-group full"><label>Notes</label><input value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Any notes" /></div>
         <div className="form-group full"><label>Product Link</label><input value={form.url} onChange={e => set('url', e.target.value)} placeholder="https://..." /></div>
         <div className="form-group full"><label>Image URL (optional)</label><input value={form.image} onChange={e => set('image', e.target.value)} placeholder="https://...image.jpg" /></div>
       </div>
       <div className="form-actions">
-        <button className="btn-save" onClick={() => { if (form.name) onSave({ ...form, price: Number(form.price) || 0, id: Date.now().toString(), image: form.image || null, blurb: '', citations: [], pros: [], cons: [], rating: 0, features: [] }); }}>Add Product</button>
+        <button className="btn-save" onClick={() => { if (form.name) onSave({ ...form, price: Number(form.price) || 0, qty: Number(form.qty) || 1, id: Date.now().toString(), image: form.image || null, blurb: '', citations: [], pros: [], cons: [], rating: 0, features: [] }); }}>Add Product</button>
         <button className="btn-cancel" onClick={onCancel}>Cancel</button>
       </div>
     </div>
@@ -279,7 +331,7 @@ function parseBlurb(text, citations) {
   return html;
 }
 
-function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
+function Card({ item, selected, onToggle, onDelete, onBlurbLoaded, onUpdateQty }) {
   const [blurbLoading, setBlurbLoading] = useState(false);
   const fetchBlurb = async (e) => {
     e.stopPropagation();
@@ -295,6 +347,8 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
     setBlurbLoading(false);
   };
   const blurbHtml = useMemo(() => item.blurb ? parseBlurb(item.blurb, item.citations) : '', [item.blurb, item.citations]);
+  const total = itemTotal(item);
+  const showQtyRow = item.unit !== 'each' || (item.qty && item.qty !== 1);
   return (
     <div className={`card${selected ? ' selected' : ''}`} onClick={onToggle}>
       <div className="card-actions-bar">
@@ -306,6 +360,15 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
         <div className="card-name">{item.name}</div>
         <div className="card-dim">{item.dim}</div>
         <div className="card-notes">{item.notes || '\u00A0'}</div>
+
+        <div className="card-qty-row" onClick={e => e.stopPropagation()}>
+          <input className="qty-input" type="number" min="0" step="any" value={item.qty ?? 1} onChange={e => onUpdateQty(item.id, { qty: Number(e.target.value) || 0 })} />
+          <select className="unit-select" value={item.unit || 'each'} onChange={e => onUpdateQty(item.id, { unit: e.target.value })}>
+            {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+          </select>
+          <span style={{color: '#6b7280', fontSize: '0.8rem'}}>@ ${item.price.toLocaleString()}/{item.unit || 'each'}</span>
+        </div>
+
         {item.blurb ? (
           <div className="card-review" onClick={e => e.stopPropagation()}>
             <div className="review-blurb" dangerouslySetInnerHTML={{ __html: blurbHtml }} />
@@ -331,11 +394,45 @@ function Card({ item, selected, onToggle, onDelete, onBlurbLoaded }) {
           <button className="blurb-btn" onClick={fetchBlurb}>Get AI review</button>
         )}
         <div className="card-footer">
-          <div className={`card-price${item.price === 0 ? ' zero' : ''}`}>
-            {item.price > 0 ? `$${item.price.toLocaleString()}` : 'Call for price'}
+          <div className={`card-price${total === 0 ? ' zero' : ''}`}>
+            {total > 0 ? (<>{`$${total.toLocaleString()}`}{(item.qty || 1) !== 1 && <span className="price-detail">{item.qty} {item.unit} x ${item.price.toLocaleString()}</span>}</>) : 'Call for price'}
           </div>
           {item.url && <a className="card-link" href={item.url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>View &rarr;</a>}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function Lookbook({ room, selectedItems, onClose }) {
+  const roomItems = selectedItems.filter(i => i.room === room.name);
+  const roomTotal = roomItems.reduce((s, i) => s + itemTotal(i), 0);
+  return (
+    <div className="lookbook-overlay" onClick={onClose}>
+      <div className="lookbook-modal" onClick={e => e.stopPropagation()}>
+        <button className="lookbook-close" onClick={onClose}>&times;</button>
+        <div className="lookbook-title">{room.name} Lookbook</div>
+        <div className="lookbook-subtitle">Selected items for this room</div>
+        {roomItems.length > 0 ? (
+          <>
+            <div className="lookbook-grid">
+              {roomItems.map(item => (
+                <div className="lookbook-item" key={item.id}>
+                  {item.image && <img className="lookbook-item-img" src={item.image} alt={item.name} onError={e => e.target.style.display='none'} />}
+                  <div className="lookbook-item-body">
+                    <div className="lookbook-item-cat">{item.category}</div>
+                    <div className="lookbook-item-name">{item.name}</div>
+                    <div className="lookbook-item-dim">{item.dim}</div>
+                    <div className="lookbook-item-price">${itemTotal(item).toLocaleString()}{(item.qty||1) !== 1 && <span style={{fontSize:'0.75rem', fontWeight:400, color:'#6b7280'}}> ({item.qty} {item.unit})</span>}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="lookbook-total">Room Total: ${roomTotal.toLocaleString()}</div>
+          </>
+        ) : (
+          <div className="lookbook-empty">No items selected in {room.name} yet. Click products to select them.</div>
+        )}
       </div>
     </div>
   );
@@ -345,15 +442,17 @@ function App() {
   const [rooms, setRooms] = useState([]);
   const [selected, setSelected] = useState({});
   const [loading, setLoading] = useState(true);
-  const [addingTo, setAddingTo] = useState(null);     // "roomId:catName"
+  const [addingTo, setAddingTo] = useState(null);
   const [importingTo, setImportingTo] = useState(null);
-  const [addingCatTo, setAddingCatTo] = useState(null); // roomId
+  const [addingCatTo, setAddingCatTo] = useState(null);
   const [newCatName, setNewCatName] = useState('');
   const [newCatSearch, setNewCatSearch] = useState('');
   const [addingRoom, setAddingRoom] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
+  const [collapsedRooms, setCollapsedRooms] = useState({});
+  const [collapsedCats, setCollapsedCats] = useState({});
+  const [lookbookRoom, setLookbookRoom] = useState(null);
 
-  // Load data
   useEffect(() => {
     fetch(API_BASE + '/api/data')
       .then(r => r.json())
@@ -365,199 +464,126 @@ function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  // -- Selections --
+  const toggleRoom = (roomId) => setCollapsedRooms(prev => ({ ...prev, [roomId]: !prev[roomId] }));
+  const toggleCat = (catName) => setCollapsedCats(prev => ({ ...prev, [catName]: !prev[catName] }));
+
   const toggle = (catName, productId) => {
     setSelected(prev => {
       const next = prev[catName] === productId ? { ...prev, [catName]: undefined } : { ...prev, [catName]: productId };
-      fetch(API_BASE + '/api/selections', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [catName]: next[catName] || null }),
-      }).catch(() => {});
+      fetch(API_BASE + '/api/selections', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [catName]: next[catName] || null }) }).catch(() => {});
       return next;
     });
   };
 
-  // -- Products --
   const addProduct = (catName, product) => {
-    setRooms(prev => prev.map(r => ({
-      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c)
-    })));
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c) })));
     setAddingTo(null);
-    fetch(API_BASE + '/api/products', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...product, category: catName }),
-    }).catch(() => {});
+    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category: catName }) }).catch(() => {});
   };
 
   const importProduct = (catName, product) => {
-    setRooms(prev => prev.map(r => ({
-      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c)
-    })));
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: [...c.products, product] } : c) })));
     setImportingTo(null);
-    fetch(API_BASE + '/api/products', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...product, category: catName }),
-    }).catch(() => {});
+    fetch(API_BASE + '/api/products', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...product, category: catName }) }).catch(() => {});
   };
 
   const deleteProduct = (catName, productId) => {
-    setRooms(prev => prev.map(r => ({
-      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.filter(p => p.id !== productId) } : c)
-    })));
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.filter(p => p.id !== productId) } : c) })));
     if (selected[catName] === productId) setSelected(prev => ({ ...prev, [catName]: undefined }));
     fetch(API_BASE + '/api/products/' + productId, { method: 'DELETE' }).catch(() => {});
   };
 
   const updateBlurb = useCallback((catName, productId, reviewData) => {
-    setRooms(prev => prev.map(r => ({
-      ...r, categories: r.categories.map(c => c.name === catName ? {
-        ...c, products: c.products.map(p => p.id === productId ? { ...p, ...reviewData } : p)
-      } : c)
-    })));
-    fetch(API_BASE + '/api/products/' + productId, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(reviewData),
-    }).catch(() => {});
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...reviewData } : p) } : c) })));
+    fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(reviewData) }).catch(() => {});
   }, []);
 
-  // -- Rooms --
+  const saveProductQty = useDebounce((productId, data) => {
+    fetch(API_BASE + '/api/products/' + productId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
+  }, 600);
+
+  const updateProductQty = useCallback((catName, productId, data) => {
+    setRooms(prev => prev.map(r => ({ ...r, categories: r.categories.map(c => c.name === catName ? { ...c, products: c.products.map(p => p.id === productId ? { ...p, ...data } : p) } : c) })));
+    saveProductQty(productId, data);
+  }, [saveProductQty]);
+
   const addRoom = (name) => {
     if (!name) return;
     const tempId = 'room-' + Date.now();
     setRooms(prev => [...prev, { id: tempId, name, categories: [] }]);
-    setAddingRoom(false);
-    setNewRoomName('');
-    fetch(API_BASE + '/api/rooms', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    }).then(r => r.json()).then(resp => {
-      if (resp.id) setRooms(prev => prev.map(r => r.id === tempId ? { ...r, id: resp.id } : r));
-    }).catch(() => {});
+    setAddingRoom(false); setNewRoomName('');
+    fetch(API_BASE + '/api/rooms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) })
+      .then(r => r.json()).then(resp => { if (resp.id) setRooms(prev => prev.map(r => r.id === tempId ? { ...r, id: resp.id } : r)); }).catch(() => {});
   };
 
   const saveRoomName = useDebounce((roomId, name) => {
-    fetch(API_BASE + '/api/rooms/' + roomId, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    }).catch(() => {});
+    fetch(API_BASE + '/api/rooms/' + roomId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }).catch(() => {});
   }, 800);
 
-  const updateRoomName = (roomId, name) => {
-    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, name } : r));
-    saveRoomName(roomId, name);
-  };
+  const updateRoomName = (roomId, name) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, name } : r)); saveRoomName(roomId, name); };
+  const deleteRoom = (roomId) => { setRooms(prev => prev.filter(r => r.id !== roomId)); fetch(API_BASE + '/api/rooms/' + roomId, { method: 'DELETE' }).catch(() => {}); };
 
-  const deleteRoom = (roomId) => {
-    setRooms(prev => prev.filter(r => r.id !== roomId));
-    fetch(API_BASE + '/api/rooms/' + roomId, { method: 'DELETE' }).catch(() => {});
-  };
-
-  // -- Categories --
   const addCategory = (roomId, name, searchQuery) => {
     if (!name) return;
-    setRooms(prev => prev.map(r => r.id === roomId ? {
-      ...r, categories: [...r.categories, { name, search_query: searchQuery || '', products: [] }]
-    } : r));
-    setAddingCatTo(null);
-    setNewCatName('');
-    setNewCatSearch('');
-    fetch(API_BASE + '/api/categories', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, room_id: roomId, search_query: searchQuery || '' }),
-    }).catch(() => {});
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: [...r.categories, { name, search_query: searchQuery || '', products: [] }] } : r));
+    setAddingCatTo(null); setNewCatName(''); setNewCatSearch('');
+    fetch(API_BASE + '/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, room_id: roomId, search_query: searchQuery || '' }) }).catch(() => {});
   };
 
   const saveCatName = useDebounce((oldName, newName) => {
     if (oldName === newName) return;
-    fetch(API_BASE + '/api/categories/' + encodeURIComponent(oldName), {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ new_name: newName }),
-    }).catch(() => {});
+    fetch(API_BASE + '/api/categories/' + encodeURIComponent(oldName), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new_name: newName }) }).catch(() => {});
   }, 800);
 
   const saveCatSearch = useDebounce((catName, searchQuery) => {
-    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ search_query: searchQuery }),
-    }).catch(() => {});
+    fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ search_query: searchQuery }) }).catch(() => {});
   }, 800);
 
-  const updateCatName = (roomId, oldName, newName) => {
-    setRooms(prev => prev.map(r => r.id === roomId ? {
-      ...r, categories: r.categories.map(c => c.name === oldName ? { ...c, name: newName } : c)
-    } : r));
-    saveCatName(oldName, newName);
-  };
+  const updateCatName = (roomId, oldName, newName) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.name === oldName ? { ...c, name: newName } : c) } : r)); saveCatName(oldName, newName); };
+  const updateCatSearch = (roomId, catName, searchQuery) => { setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.map(c => c.name === catName ? { ...c, search_query: searchQuery } : c) } : r)); saveCatSearch(catName, searchQuery); };
 
-  const updateCatSearch = (roomId, catName, searchQuery) => {
-    setRooms(prev => prev.map(r => r.id === roomId ? {
-      ...r, categories: r.categories.map(c => c.name === catName ? { ...c, search_query: searchQuery } : c)
-    } : r));
-    saveCatSearch(catName, searchQuery);
-  };
-
-  // -- Reorder rooms --
   const moveRoom = (roomId, dir) => {
     setRooms(prev => {
-      const idx = prev.findIndex(r => r.id === roomId);
-      const newIdx = idx + dir;
+      const idx = prev.findIndex(r => r.id === roomId); const newIdx = idx + dir;
       if (newIdx < 0 || newIdx >= prev.length) return prev;
-      const arr = [...prev];
-      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
-      fetch(API_BASE + '/api/rooms/reorder', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order: arr.map(r => r.id) }),
-      }).catch(() => {});
+      const arr = [...prev]; [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      fetch(API_BASE + '/api/rooms/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ order: arr.map(r => r.id) }) }).catch(() => {});
       return arr;
     });
   };
 
-  // -- Reorder categories within a room --
   const moveCat = (roomId, catName, dir) => {
     setRooms(prev => prev.map(r => {
       if (r.id !== roomId) return r;
-      const cats = [...r.categories];
-      const idx = cats.findIndex(c => c.name === catName);
-      const newIdx = idx + dir;
+      const cats = [...r.categories]; const idx = cats.findIndex(c => c.name === catName); const newIdx = idx + dir;
       if (newIdx < 0 || newIdx >= cats.length) return r;
       [cats[idx], cats[newIdx]] = [cats[newIdx], cats[idx]];
-      fetch(API_BASE + '/api/categories/reorder', {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ room_id: roomId, order: cats.map(c => c.name) }),
-      }).catch(() => {});
+      fetch(API_BASE + '/api/categories/reorder', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ room_id: roomId, order: cats.map(c => c.name) }) }).catch(() => {});
       return { ...r, categories: cats };
     }));
   };
 
   const deleteCategory = (roomId, catName) => {
-    setRooms(prev => prev.map(r => r.id === roomId ? {
-      ...r, categories: r.categories.filter(c => c.name !== catName)
-    } : r));
+    setRooms(prev => prev.map(r => r.id === roomId ? { ...r, categories: r.categories.filter(c => c.name !== catName) } : r));
     fetch(API_BASE + '/api/categories/' + encodeURIComponent(catName), { method: 'DELETE' }).catch(() => {});
   };
 
-  // -- Computed --
-  const allCategories = useMemo(() => {
-    const cats = [];
+  // Computed
+  const selectedItems = useMemo(() => {
+    const items = [];
     rooms.forEach(room => room.categories.forEach(cat => {
       const selId = selected[cat.name];
       const selProduct = selId ? cat.products.find(p => p.id === selId) : null;
-      cats.push({ room: room.name, catName: cat.name, selected: selProduct });
+      if (selProduct) items.push({ ...selProduct, category: cat.name, room: room.name });
     }));
-    return cats;
+    return items;
   }, [rooms, selected]);
 
-  const selectedItems = useMemo(() => allCategories.filter(c => c.selected).map(c => ({ ...c.selected, category: c.catName, room: c.room })), [allCategories]);
-  const total = selectedItems.reduce((s, i) => s + i.price, 0);
+  const total = selectedItems.reduce((s, i) => s + itemTotal(i), 0);
   const count = selectedItems.length;
 
   if (loading) {
-    return (
-      <div className="app" style={{textAlign: 'center', paddingTop: '100px'}}>
-        <span className="spinner" style={{width: 32, height: 32, borderWidth: 3}} />
-        <p style={{marginTop: 16, color: '#6b7280'}}>Loading...</p>
-      </div>
-    );
+    return (<div className="app" style={{textAlign: 'center', paddingTop: '100px'}}><span className="spinner" style={{width: 32, height: 32, borderWidth: 3}} /><p style={{marginTop: 16, color: '#6b7280'}}>Loading...</p></div>);
   }
 
   return (
@@ -575,92 +601,100 @@ function App() {
           <div className="count">{count} item{count !== 1 ? 's' : ''} selected</div>
         </div>
         <div className="selected-list">
-          {selectedItems.map(item => <div key={item.id} className="budget-chip">{item.category}<span className="chip-price">${item.price.toLocaleString()}</span></div>)}
+          {selectedItems.map(item => <div key={item.id} className="budget-chip">{item.category}<span className="chip-price">${itemTotal(item).toLocaleString()}</span></div>)}
           {count === 0 && <div className="budget-chip" style={{opacity:0.5}}>No items selected yet</div>}
         </div>
       </div>
 
-      {rooms.map(room => (
-        <div className="room" key={room.id}>
-          <div className="room-header">
-            <div className="room-header-left">
-              <input className="room-name" value={room.name} onChange={e => updateRoomName(room.id, e.target.value)} />
-            </div>
-            <div className="room-actions">
-              <div className="move-btns">
-                <button className="move-btn" disabled={rooms.indexOf(room) === 0} onClick={() => moveRoom(room.id, -1)} title="Move up">&#9650;</button>
-                <button className="move-btn" disabled={rooms.indexOf(room) === rooms.length - 1} onClick={() => moveRoom(room.id, 1)} title="Move down">&#9660;</button>
+      {rooms.map((room, ri) => {
+        const isCollapsed = collapsedRooms[room.id];
+        const roomSelCount = room.categories.filter(c => selected[c.name]).length;
+        const roomTotal = room.categories.reduce((s, c) => {
+          const sel = selected[c.name] ? c.products.find(p => p.id === selected[c.name]) : null;
+          return s + (sel ? itemTotal(sel) : 0);
+        }, 0);
+        return (
+          <div className="room" key={room.id}>
+            <div className="room-header" onClick={() => toggleRoom(room.id)}>
+              <div className="room-header-left">
+                <span className={`room-collapse-icon${isCollapsed ? ' collapsed' : ''}`}>&#9660;</span>
+                <input className="room-name" value={room.name} onChange={e => updateRoomName(room.id, e.target.value)} onClick={e => e.stopPropagation()} />
+                <span className="room-summary">{roomSelCount}/{room.categories.length} selected{roomTotal > 0 ? ` \u2022 $${roomTotal.toLocaleString()}` : ''}</span>
               </div>
-              <button className="room-delete-btn" onClick={() => deleteRoom(room.id)}>Remove</button>
+              <div className="room-actions" onClick={e => e.stopPropagation()}>
+                <button className="lookbook-btn" onClick={() => setLookbookRoom(room)}>Lookbook</button>
+                <div className="move-btns">
+                  <button className="move-btn" disabled={ri === 0} onClick={() => moveRoom(room.id, -1)} title="Move up">&#9650;</button>
+                  <button className="move-btn" disabled={ri === rooms.length - 1} onClick={() => moveRoom(room.id, 1)} title="Move down">&#9660;</button>
+                </div>
+                <button className="room-delete-btn" onClick={() => deleteRoom(room.id)}>Remove</button>
+              </div>
+            </div>
+
+            <div className={`room-body${isCollapsed ? ' collapsed' : ''}`}>
+              {room.categories.map((cat, ci) => {
+                const catKey = room.id + ':' + cat.name;
+                const isCatCollapsed = collapsedCats[cat.name];
+                const selProduct = selected[cat.name] ? cat.products.find(p => p.id === selected[cat.name]) : null;
+                return (
+                  <div className="category" key={cat.name}>
+                    <div className="category-header">
+                      <div className="category-header-left">
+                        <div className="cat-move-btns">
+                          <button className="cat-move-btn" disabled={ci === 0} onClick={() => moveCat(room.id, cat.name, -1)}>&#9650;</button>
+                          <button className="cat-move-btn" disabled={ci === room.categories.length - 1} onClick={() => moveCat(room.id, cat.name, 1)}>&#9660;</button>
+                        </div>
+                        <span className={`cat-collapse-icon${isCatCollapsed ? ' collapsed' : ''}`} onClick={() => toggleCat(cat.name)}>&#9660;</span>
+                        <input className="cat-name-input" value={cat.name} onChange={e => updateCatName(room.id, cat.name, e.target.value)} />
+                        <input className="cat-search-input" value={cat.search_query} onChange={e => updateCatSearch(room.id, cat.name, e.target.value)} placeholder="search query..." title="Google Shopping search query" />
+                        {selProduct && <span className="cat-selected-badge">{selProduct.name.slice(0,25)}{selProduct.name.length > 25 ? '...' : ''} ${itemTotal(selProduct).toLocaleString()}</span>}
+                        <button className="cat-delete-btn" title="Remove category" onClick={() => deleteCategory(room.id, cat.name)}>&times;</button>
+                      </div>
+                      <div className="cat-actions">
+                        {cat.search_query && <a className="action-btn purple" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(cat.search_query)} target="_blank" rel="noopener">&#128269;</a>}
+                        <button className="action-btn blue" onClick={() => { setImportingTo(importingTo === catKey ? null : catKey); setAddingTo(null); }}>{importingTo === catKey ? 'Cancel' : 'Import'}</button>
+                        <button className="action-btn green" onClick={() => { setAddingTo(addingTo === catKey ? null : catKey); setImportingTo(null); }}>{addingTo === catKey ? 'Cancel' : '+ Add'}</button>
+                      </div>
+                    </div>
+                    <div className={`cat-body${isCatCollapsed ? ' collapsed' : ''}`}>
+                      {importingTo === catKey && <ImportForm category={cat.name} onImport={p => importProduct(cat.name, p)} onCancel={() => setImportingTo(null)} />}
+                      {addingTo === catKey && <AddForm category={cat.name} onSave={p => addProduct(cat.name, p)} onCancel={() => setAddingTo(null)} />}
+                      {cat.products.length > 0 ? (
+                        <div className="card-grid">
+                          {cat.products.map(item => (
+                            <Card key={item.id} item={item} selected={selected[cat.name] === item.id}
+                              onToggle={() => toggle(cat.name, item.id)}
+                              onDelete={() => deleteProduct(cat.name, item.id)}
+                              onBlurbLoaded={(id, reviewData) => updateBlurb(cat.name, id, reviewData)}
+                              onUpdateQty={(id, data) => updateProductQty(cat.name, id, data)} />
+                          ))}
+                        </div>
+                      ) : <div className="empty">No products yet</div>}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {addingCatTo === room.id ? (
+                <div className="add-cat-row">
+                  <input className="cat-name-field" value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="Category name" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
+                  <input className="cat-search-field" value={newCatSearch} onChange={e => setNewCatSearch(e.target.value)} placeholder="Search query (optional)" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
+                  <button className="add-cat-inline-btn btn-save" onClick={() => addCategory(room.id, newCatName, newCatSearch)} disabled={!newCatName}>Add</button>
+                  <button className="add-cat-inline-btn btn-cancel" onClick={() => { setAddingCatTo(null); setNewCatName(''); setNewCatSearch(''); }}>Cancel</button>
+                </div>
+              ) : (
+                <button className="add-cat-trigger" onClick={() => { setAddingCatTo(room.id); setNewCatName(''); setNewCatSearch(''); }}>+ Add Category</button>
+              )}
             </div>
           </div>
-
-          {room.categories.map(cat => {
-            const catKey = room.id + ':' + cat.name;
-            return (
-              <div className="category" key={cat.name}>
-                <div className="category-header">
-                  <div className="category-header-left">
-                    <div className="cat-move-btns">
-                      <button className="cat-move-btn" disabled={room.categories.indexOf(cat) === 0} onClick={() => moveCat(room.id, cat.name, -1)} title="Move up">&#9650;</button>
-                      <button className="cat-move-btn" disabled={room.categories.indexOf(cat) === room.categories.length - 1} onClick={() => moveCat(room.id, cat.name, 1)} title="Move down">&#9660;</button>
-                    </div>
-                    <input className="cat-name-input" value={cat.name} onChange={e => updateCatName(room.id, cat.name, e.target.value)} />
-                    <input className="cat-search-input" value={cat.search_query} onChange={e => updateCatSearch(room.id, cat.name, e.target.value)} placeholder="search query..." title="Google Shopping search query" />
-                    <button className="cat-delete-btn" title="Remove category" onClick={() => deleteCategory(room.id, cat.name)}>&times;</button>
-                  </div>
-                  <div className="cat-actions">
-                    {cat.search_query && (
-                      <a className="action-btn purple" href={'https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(cat.search_query)} target="_blank" rel="noopener">&#128269; Search</a>
-                    )}
-                    <button className="action-btn blue" onClick={() => { setImportingTo(importingTo === catKey ? null : catKey); setAddingTo(null); }}>
-                      {importingTo === catKey ? 'Cancel' : 'Import URL'}
-                    </button>
-                    <button className="action-btn green" onClick={() => { setAddingTo(addingTo === catKey ? null : catKey); setImportingTo(null); }}>
-                      {addingTo === catKey ? 'Cancel' : '+ Add'}
-                    </button>
-                  </div>
-                </div>
-                {importingTo === catKey && <ImportForm category={cat.name} onImport={p => importProduct(cat.name, p)} onCancel={() => setImportingTo(null)} />}
-                {addingTo === catKey && <AddForm category={cat.name} onSave={p => addProduct(cat.name, p)} onCancel={() => setAddingTo(null)} />}
-                {cat.products.length > 0 ? (
-                  <div className="card-grid">
-                    {cat.products.map(item => (
-                      <Card key={item.id} item={item} selected={selected[cat.name] === item.id}
-                        onToggle={() => toggle(cat.name, item.id)}
-                        onDelete={() => deleteProduct(cat.name, item.id)}
-                        onBlurbLoaded={(id, reviewData) => updateBlurb(cat.name, id, reviewData)} />
-                    ))}
-                  </div>
-                ) : <div className="empty">No products yet</div>}
-              </div>
-            );
-          })}
-
-          {addingCatTo === room.id ? (
-            <div className="add-cat-row">
-              <input className="cat-name-field" value={newCatName} onChange={e => setNewCatName(e.target.value)} placeholder="Category name" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
-              <input className="cat-search-field" value={newCatSearch} onChange={e => setNewCatSearch(e.target.value)} placeholder="Search query (optional)" onKeyDown={e => e.key === 'Enter' && addCategory(room.id, newCatName, newCatSearch)} />
-              <button className="add-cat-inline-btn btn-save" onClick={() => addCategory(room.id, newCatName, newCatSearch)} disabled={!newCatName}>Add</button>
-              <button className="add-cat-inline-btn btn-cancel" onClick={() => { setAddingCatTo(null); setNewCatName(''); setNewCatSearch(''); }}>Cancel</button>
-            </div>
-          ) : (
-            <button className="add-cat-trigger" onClick={() => { setAddingCatTo(room.id); setNewCatName(''); setNewCatSearch(''); }}>+ Add Category to {room.name}</button>
-          )}
-        </div>
-      ))}
+        );
+      })}
 
       <div className="add-room-section">
         {addingRoom ? (
           <div className="add-room-form">
-            <div className="form-group">
-              <label>Room Name</label>
-              <input value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="e.g. Bedroom, Entryway..." onKeyDown={e => e.key === 'Enter' && addRoom(newRoomName)} autoFocus />
-            </div>
-            <div style={{display:'flex', gap:8, paddingBottom:1}}>
-              <button className="btn-save" onClick={() => addRoom(newRoomName)} disabled={!newRoomName}>Add Room</button>
-              <button className="btn-cancel" onClick={() => { setAddingRoom(false); setNewRoomName(''); }}>Cancel</button>
-            </div>
+            <div className="form-group"><label>Room Name</label><input value={newRoomName} onChange={e => setNewRoomName(e.target.value)} placeholder="e.g. Bedroom, Entryway..." onKeyDown={e => e.key === 'Enter' && addRoom(newRoomName)} autoFocus /></div>
+            <div style={{display:'flex', gap:8, paddingBottom:1}}><button className="btn-save" onClick={() => addRoom(newRoomName)} disabled={!newRoomName}>Add Room</button><button className="btn-cancel" onClick={() => { setAddingRoom(false); setNewRoomName(''); }}>Cancel</button></div>
           </div>
         ) : (
           <button className="add-room-btn" onClick={() => setAddingRoom(true)}>+ Add Room</button>
@@ -673,17 +707,17 @@ function App() {
           <thead><tr><th></th><th>Room</th><th>Category</th><th>Selected</th><th style={{textAlign:'right'}}>Price</th></tr></thead>
           <tbody>
             {rooms.map(room => {
-              const roomCats = room.categories;
-              if (roomCats.length === 0) return null;
-              return roomCats.map((cat, ci) => {
+              if (room.categories.length === 0) return null;
+              return room.categories.map((cat, ci) => {
                 const item = selectedItems.find(i => i.category === cat.name);
+                const t = item ? itemTotal(item) : 0;
                 return (
                   <tr key={cat.name} className={!item ? 'empty-row' : ''}>
                     <td>{item?.image ? <img className="summary-thumb" src={item.image} alt="" /> : null}</td>
                     <td>{ci === 0 ? <strong>{room.name}</strong> : ''}</td>
                     <td>{cat.name}</td>
-                    <td>{item ? item.name : 'No selection'}</td>
-                    <td style={{textAlign:'right', fontWeight: item ? 600 : 400}}>{item ? (item.price > 0 ? `$${item.price.toLocaleString()}` : 'TBD') : '$0'}</td>
+                    <td>{item ? (<>{item.name}{(item.qty||1) !== 1 && <span style={{color:'#6b7280', fontSize:'0.8rem'}}> ({item.qty} {item.unit})</span>}</>) : 'No selection'}</td>
+                    <td style={{textAlign:'right', fontWeight: item ? 600 : 400}}>{item ? (t > 0 ? `$${t.toLocaleString()}` : 'TBD') : '$0'}</td>
                   </tr>
                 );
               });
@@ -692,6 +726,8 @@ function App() {
           </tbody>
         </table>
       </div>
+
+      {lookbookRoom && <Lookbook room={lookbookRoom} selectedItems={selectedItems} onClose={() => setLookbookRoom(null)} />}
     </div>
   );
 }

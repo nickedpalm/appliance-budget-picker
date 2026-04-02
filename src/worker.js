@@ -67,6 +67,8 @@ async function handleAPI(request, env, path, cors) {
       if (!productsByCategory[p.category]) productsByCategory[p.category] = [];
       productsByCategory[p.category].push({
         ...p,
+        qty: p.qty ?? 1,
+        unit: p.unit || 'each',
         citations: JSON.parse(p.citations || '[]'),
         pros: JSON.parse(p.pros || '[]'),
         cons: JSON.parse(p.cons || '[]'),
@@ -187,15 +189,16 @@ async function handleAPI(request, env, path, cors) {
   // POST /api/products
   if (path === '/api/products' && method === 'POST') {
     const body = await request.json();
-    const { id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features } = body;
+    const { id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit } = body;
     const productId = id || crypto.randomUUID();
     await db.prepare(`
-      INSERT INTO products (id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO products (id, category, name, dim, notes, price, url, image, blurb, citations, pros, cons, rating, features, qty, unit)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       productId, category, name || '', dim || '', notes || '', price || 0, url || '', image || null,
       blurb || '', JSON.stringify(citations || []), JSON.stringify(pros || []),
-      JSON.stringify(cons || []), rating || 0, JSON.stringify(features || [])
+      JSON.stringify(cons || []), rating || 0, JSON.stringify(features || []),
+      qty ?? 1, unit || 'each'
     ).run();
     return json({ success: true, id: productId });
   }
@@ -207,7 +210,7 @@ async function handleAPI(request, env, path, cors) {
     const fields = [];
     const values = [];
     for (const [key, val] of Object.entries(body)) {
-      if (['name', 'dim', 'notes', 'price', 'url', 'image', 'blurb', 'rating'].includes(key)) {
+      if (['name', 'dim', 'notes', 'price', 'url', 'image', 'blurb', 'rating', 'qty', 'unit'].includes(key)) {
         fields.push(`${key} = ?`); values.push(val);
       }
       if (['citations', 'pros', 'cons', 'features'].includes(key)) {
