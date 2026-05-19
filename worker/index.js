@@ -26,6 +26,7 @@ export default {
 
       let data = await extractProductFromUrl(PPLX_KEY, url, evidence, expectedCategory);
       data = normalizeProductData(data);
+      data = applyEvidenceFallbacks(data, evidence, url);
 
       const extractedImage = imageAllowedForSource(data.image, url) ? data.image : null;
       let image = await findVerifiedImageFromCandidates([...evidence.imageCandidates, extractedImage]);
@@ -57,6 +58,8 @@ export default {
         imageVerified: Boolean(image),
         evidenceTitle: evidence.title || null,
         evidenceProductNames: evidence.products.map(p => p.name).filter(Boolean).slice(0, 5),
+        evidenceDimensions: evidence.dimensionCandidates.slice(0, 3),
+        evidencePrices: evidence.priceCandidates.slice(0, 3),
         validatedAt: new Date().toISOString(),
       };
       data.validationErrors = validation.errors;
@@ -92,7 +95,7 @@ const TRUSTED_CDN_RE = /images\.thdstatic\.com|m\.media-amazon\.com|pisces\.bbys
 const IMG_PROXY = 'https://spiel.nickpalm.com';
 
 function emptyEvidence() {
-  return { title: '', description: '', products: [], imageCandidates: [], priceCandidates: [] };
+  return { title: '', description: '', products: [], imageCandidates: [], priceCandidates: [], dimensionCandidates: [] };
 }
 
 function normalizeHttpUrl(url) {
@@ -129,8 +132,12 @@ function cleanImageUrl(url) {
 
 function isTrustedImageUrl(url) {
   const clean = cleanImageUrl(url);
-  if (!clean) return false;
+  if (!clean || isNonProductImageUrl(clean)) return false;
   return TRUSTED_CDN_RE.test(clean) && /\.(jpg|jpeg|png|webp)(\?|$)/i.test(clean);
+}
+
+function isNonProductImageUrl(url) {
+  return /touch_icons|favicon|apple-touch|sprite|placeholder|default_name|logo|wayfair_\d+x\d+|resize-h(48|50|76|96|120|150|152|180|192)(\D|$)|w(48|50|76|96|120|150|152|180|192)(\D|$)/i.test(url);
 }
 
 function sameUrl(a, b) {
@@ -176,10 +183,12 @@ async function fetchProductPageViaProxy(url, originalPage) {
 
 function extractPageEvidence(html, pageUrl) {
   const baseUrl = new URL(pageUrl);
+  const normalizedHtml = normalizeEmbeddedPageText(html);
   const title = cleanText((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
   const description = cleanText(firstMeta(html, ['description', 'og:description', 'twitter:description']));
   const imageCandidates = [];
   const priceCandidates = [];
+  const dimensionCandidates = [];
   const products = [];
 
   for (const img of [firstMeta(html, ['og:image', 'twitter:image']), ...findImageUrls(html)]) {
@@ -209,9 +218,24 @@ function extractPageEvidence(html, pageUrl) {
     }
   }
 
+  for (const m of normalizedHtml.matchAll(/"amount"\s*:\s*"([0-9]{2,5}(?:\.[0-9]{2})?)"/g)) {
+    const n = Number(m[1]);
+    if (n > 0 && !priceCandidates.includes(n)) priceCandidates.push(n);
+  }
+  for (const m of normalizedHtml.matchAll(/data-test-id="PriceDisplay"[\s\S]{0,500}?\$\s*([0-9]{2,5}(?:,[0-9]{3})?(?:\.[0-9]{2})?)/g)) {
+    const n = Number(m[1].replace(/,/g, ''));
+    if (n > 0 && !priceCandidates.includes(n)) priceCandidates.push(n);
+  }
   for (const m of html.matchAll(/\$\s*([0-9]{2,5}(?:,[0-9]{3})?(?:\.[0-9]{2})?)/g)) {
     const n = Number(m[1].replace(/,/g, ''));
     if (n > 0 && !priceCandidates.includes(n)) priceCandidates.push(n);
+  }
+
+  for (const m of normalizedHtml.matchAll(/"key"\s*:\s*"([^"]*(?:dimensions|width|height|depth)[^"]*)"\s*,\s*"value"\s*:\s*"([^"]{4,160})"/gi)) {
+    addDimensionCandidate(dimensionCandidates, m[2]);
+  }
+  for (const m of normalizedHtml.matchAll(/(?:Overall Dimensions|Product Dimensions|Dimensions)[^"<]{0,80}([0-9]+(?:\.[0-9]+)?\s*(?:''|"|in\.?|inches?)\s*[HWD][^"<]{0,140})/gi)) {
+    addDimensionCandidate(dimensionCandidates, m[1]);
   }
 
   return {
@@ -220,7 +244,28 @@ function extractPageEvidence(html, pageUrl) {
     products: products.filter(p => p.name || p.sku),
     imageCandidates: imageCandidates.slice(0, 20),
     priceCandidates: priceCandidates.filter(Boolean).slice(0, 10),
+    dimensionCandidates: dimensionCandidates.slice(0, 10),
   };
+}
+
+function normalizeEmbeddedPageText(html) {
+  return String(html || '')
+    .replace(/\\u0026/g, '&')
+    .replace(/\\u002F/gi, '/')
+    .replace(/\\"/g, '"')
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&');
+}
+
+function addDimensionCandidate(candidates, value) {
+  const clean = cleanText(value)
+    .replace(/''/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!clean || clean.length < 4 || clean.length > 180) return;
+  if (!/[0-9]/.test(clean) || !/(\bH\b|\bW\b|\bD\b|inch|in\.?|"|')/i.test(clean)) return;
+  if (!candidates.includes(clean)) candidates.push(clean);
 }
 
 function firstMeta(html, keys) {
@@ -275,7 +320,7 @@ function imageCandidateScore(url) {
   if (/assets\.wfcdn\.com|secure\.img1-[^/]+\.wfcdn\.com/i.test(clean)) score += 15;
   if (/resize-h(600|800|1000|1200)|w(600|800|1000|1200)/i.test(clean)) score += 8;
   if (/resize-h(48|50|96)|w(48|50|96)/i.test(clean)) score -= 10;
-  if (/default_name|placeholder|sprite|logo|icon/i.test(clean)) score -= 12;
+  if (isNonProductImageUrl(clean)) score -= 100;
   return score;
 }
 
@@ -408,6 +453,36 @@ function normalizeProductData(data) {
   };
 }
 
+function applyEvidenceFallbacks(data, evidence, url) {
+  if (isSearchResultPage(url)) return data;
+  const next = { ...data };
+  if (!next.dim && evidence.dimensionCandidates.length) {
+    next.dim = evidence.dimensionCandidates[0];
+    next.extractorWarnings = [...next.extractorWarnings, 'dimensions recovered from page evidence'];
+  }
+  if (!next.price && evidence.priceCandidates.length) {
+    next.price = evidence.priceCandidates[0];
+    next.extractorWarnings = [...next.extractorWarnings, 'price recovered from page evidence'];
+  }
+  if (!next.model && evidence.products.length) {
+    const sku = evidence.products.map(p => p.sku).find(Boolean);
+    if (sku) next.model = sku;
+  }
+  return next;
+}
+
+function isSearchResultPage(value) {
+  try {
+    const u = new URL(value);
+    const h = u.hostname.replace(/^www\./, '').toLowerCase();
+    if (/^(google|bing|yahoo|duckduckgo)\./.test(h) && /(^|\/)(search|shopping|shop)(\/|$)?/i.test(u.pathname)) return true;
+    if (/^(google|bing|yahoo|duckduckgo)\./.test(h) && u.searchParams.has('q')) return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 async function extractProductFromUrl(apiKey, url, evidence, expectedCategory) {
   const sysMsg = `You extract exactly one product from the supplied URL and page evidence. Return ONLY valid JSON.
 
@@ -445,6 +520,7 @@ Return this exact JSON shape:
     pageDescription: evidence.description || null,
     jsonLdProducts: evidence.products.slice(0, 5),
     priceCandidates: evidence.priceCandidates.slice(0, 5),
+    dimensionCandidates: evidence.dimensionCandidates.slice(0, 5),
     imageCandidates: evidence.imageCandidates.slice(0, 5),
   });
 
@@ -487,6 +563,7 @@ function validateProductData(data, { url, expectedCategory, evidence, page }) {
   };
 
   if (!page.html) add(warnings, 'page_fetch_failed', 'Could not fetch product page evidence directly.', 0.15);
+  if (isSearchResultPage(url)) add(errors, 'unsupported_search_page', 'Import a direct retailer product URL, not a search results page.', 0.4, 'error');
   if (!data.name || data.name === 'Unknown Product') add(errors, 'bad_name', 'No specific product name was extracted.', 0.35, 'error');
   if (isGenericBrandOnly(data.name, evidence)) add(errors, 'generic_name', 'Extracted name appears to be only a brand or seller name.', 0.3, 'error');
   if (!data.dim) add(errors, 'missing_dimensions', 'Dimensions were not extracted.', 0.2, 'error');

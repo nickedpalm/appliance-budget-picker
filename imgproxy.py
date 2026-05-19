@@ -26,7 +26,7 @@ BASE_HEADERS = {
 IMAGE_HEADERS = {**BASE_HEADERS, "Accept": "image/*,*/*;q=0.8"}
 HTML_HEADERS = {**BASE_HEADERS, "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
 DENIAL_MARKERS = ("Access to this page has been denied", "px-captcha")
-MAX_HTML_BYTES = 350_000
+MAX_HTML_BYTES = 1_500_000
 
 async def fetch_image(url: str) -> tuple[bytes | None, str]:
     """Fetch image, return (bytes, content_type) or (None, '')."""
