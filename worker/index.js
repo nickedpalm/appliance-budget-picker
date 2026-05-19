@@ -16,10 +16,12 @@ export default {
         return Response.json({ success: true, ...result }, { headers: cors });
       }
 
-      const url = normalizeHttpUrl(body.url);
-      if (!url) return Response.json({ error: 'valid http(s) url required' }, { status: 400, headers: cors });
+      const inputUrl = normalizeHttpUrl(body.url);
+      if (!inputUrl) return Response.json({ error: 'valid http(s) url required' }, { status: 400, headers: cors });
 
       const expectedCategory = typeof body.category === 'string' ? body.category.trim() : '';
+      const resolvedSource = await resolveImportSource(PPLX_KEY, inputUrl, expectedCategory);
+      const url = resolvedSource.url;
       let page = await fetchProductPage(url);
       if (!page.html) page = await fetchProductPageViaProxy(url, page);
       const evidence = page.html ? extractPageEvidence(page.html, page.finalUrl || url) : emptyEvidence();
@@ -46,13 +48,17 @@ export default {
       }
       data.image = image;
 
-      const validation = validateProductData(data, { url, expectedCategory, evidence, page });
+      const validation = validateProductData(data, { url, inputUrl, expectedCategory, evidence, page, resolvedSource });
       data.sourceConfidence = validation.confidence;
       data.sourceMetadata = {
         extraction: 'perplexity-sonar-with-page-evidence',
         pageFetchOk: Boolean(page.html),
         pageFetchViaProxy: Boolean(page.viaProxy),
+        inputUrl,
         sourceUrl: url,
+        resolvedFrom: resolvedSource.resolvedFrom,
+        resolverConfidence: resolvedSource.confidence,
+        resolverNote: resolvedSource.note,
         finalUrl: page.finalUrl || url,
         expectedCategory: expectedCategory || null,
         imageVerified: Boolean(image),
@@ -178,6 +184,93 @@ async function fetchProductPageViaProxy(url, originalPage) {
     return { ok: true, status: data.status || 200, finalUrl: data.finalUrl || url, html: data.html, viaProxy: true };
   } catch {
     return originalPage;
+  }
+}
+
+async function resolveImportSource(apiKey, inputUrl, expectedCategory) {
+  const embedded = extractEmbeddedTargetUrl(inputUrl);
+  if (embedded) return { url: embedded, resolvedFrom: inputUrl, confidence: 1, note: 'resolved embedded retailer URL' };
+  if (!isSearchResultPage(inputUrl)) return { url: inputUrl, resolvedFrom: null, confidence: 1, note: null };
+
+  const query = searchQueryFromUrl(inputUrl);
+  if (!query) return { url: inputUrl, resolvedFrom: null, confidence: 0, note: 'search URL did not include a product query' };
+
+  const resolved = await resolveRetailerUrlFromSearch(apiKey, query, expectedCategory);
+  if (resolved?.url) return { ...resolved, resolvedFrom: inputUrl };
+  return { url: inputUrl, resolvedFrom: null, confidence: 0, note: 'could not resolve a direct retailer product URL' };
+}
+
+function extractEmbeddedTargetUrl(inputUrl) {
+  try {
+    const u = new URL(inputUrl);
+    for (const key of ['url', 'u', 'q', 'adurl']) {
+      const value = u.searchParams.get(key);
+      const direct = normalizeHttpUrl(value);
+      if (direct && !isSearchResultPage(direct) && !/google|doubleclick|gstatic/i.test(host(direct))) return direct;
+    }
+  } catch {}
+  return null;
+}
+
+function searchQueryFromUrl(inputUrl) {
+  try {
+    const u = new URL(inputUrl);
+    return cleanText(u.searchParams.get('q') || u.searchParams.get('query') || u.searchParams.get('oq') || '').slice(0, 220);
+  } catch {
+    return '';
+  }
+}
+
+async function resolveRetailerUrlFromSearch(apiKey, query, expectedCategory) {
+  try {
+    const resp = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [
+          { role: 'system', content: 'Resolve a pasted Google Shopping/Search product query to direct retailer product page URLs. Return ONLY valid JSON with a candidates array. Do not return Google, ads, search results, category pages, reviews, images, or manufacturer-only pages unless they are the canonical product page. Prefer retailer pages likely to expose product HTML and images. If uncertain, return an empty candidates array.' },
+          { role: 'user', content: JSON.stringify({ query, expectedCategory: expectedCategory || null, preferredRetailers: ['homedepot.com', 'lowes.com', 'wayfair.com', 'build.com', 'bestbuy.com', 'amazon.com', 'ajmadison.com'] }) }
+        ],
+        max_tokens: 350
+      }),
+    });
+    if (!resp.ok) return null;
+    const result = await resp.json();
+    const text = result.choices?.[0]?.message?.content || '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    const parsed = JSON.parse(jsonMatch[0]);
+    const citationCandidates = (result.citations || []).map(url => ({ url, confidence: 0.7, note: 'resolver citation' }));
+    const textCandidates = (text.match(/https?:\/\/[^\s"'<>)]+/gi) || []).map(url => ({ url: url.replace(/[.,;:!?)]+$/, ''), confidence: 0.65, note: 'resolver response URL' }));
+    const rawCandidates = [
+      ...(Array.isArray(parsed.candidates) ? parsed.candidates : []),
+      ...(parsed.url ? [parsed] : []),
+      ...citationCandidates,
+      ...textCandidates,
+    ];
+    const candidates = rawCandidates
+      .map(c => ({
+        url: normalizeHttpUrl(c.url),
+        confidence: typeof c.confidence === 'number' ? c.confidence : 0,
+        note: cleanText(c.reason || c.note || 'resolved from search query')
+      }))
+      .filter(c => c.url && c.confidence >= 0.55 && !isSearchResultPage(c.url) && !/google|doubleclick|gstatic/i.test(host(c.url)));
+
+    let fallback = null;
+    for (const candidate of candidates.slice(0, 5)) {
+      if (!fallback) fallback = candidate;
+      const page = await fetchProductPage(candidate.url);
+      const verifiedPage = page.html ? page : await fetchProductPageViaProxy(candidate.url, page);
+      if (!verifiedPage.html) continue;
+      const evidence = extractPageEvidence(verifiedPage.html, verifiedPage.finalUrl || candidate.url);
+      if (evidence.products.length || (evidence.title && !isGenericPageTitle(evidence.title))) {
+        return { ...candidate, note: candidate.note || 'resolved verified retailer page' };
+      }
+    }
+    return fallback;
+  } catch {
+    return null;
   }
 }
 
@@ -553,7 +646,7 @@ Return this exact JSON shape:
   }
 }
 
-function validateProductData(data, { url, expectedCategory, evidence, page }) {
+function validateProductData(data, { url, inputUrl, expectedCategory, evidence, page, resolvedSource }) {
   const errors = [];
   const warnings = [];
   let score = 1;
@@ -564,6 +657,11 @@ function validateProductData(data, { url, expectedCategory, evidence, page }) {
 
   if (!page.html) add(warnings, 'page_fetch_failed', 'Could not fetch product page evidence directly.', 0.15);
   if (isSearchResultPage(url)) add(errors, 'unsupported_search_page', 'Import a direct retailer product URL, not a search results page.', 0.4, 'error');
+  if (resolvedSource?.resolvedFrom || (inputUrl && inputUrl !== url)) {
+    if (!page.html) add(errors, 'resolved_page_fetch_failed', 'Resolved Google Shopping URL, but the retailer page could not be verified.', 0.35, 'error');
+    if (!data.image) add(errors, 'resolved_missing_verified_image', 'Resolved Google Shopping URL, but no verified product image was found.', 0.25, 'error');
+    if (!data.price && !/call\s*for\s*price|price unavailable|contact/i.test(data.notes || '')) add(errors, 'resolved_missing_price', 'Resolved Google Shopping URL, but price was not verified.', 0.25, 'error');
+  }
   if (!data.name || data.name === 'Unknown Product') add(errors, 'bad_name', 'No specific product name was extracted.', 0.35, 'error');
   if (isGenericBrandOnly(data.name, evidence)) add(errors, 'generic_name', 'Extracted name appears to be only a brand or seller name.', 0.3, 'error');
   if (!data.dim) add(errors, 'missing_dimensions', 'Dimensions were not extracted.', 0.2, 'error');
